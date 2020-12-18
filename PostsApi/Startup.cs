@@ -9,6 +9,8 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using PostsApi.Context;
 using PostsApi.Models.Entities.Identity;
+using PostsApi.Services.Implementations;
+using PostsApi.Services.Interfaces;
 using System;
 using System.Text;
 using System.Threading.Tasks;
@@ -52,6 +54,8 @@ namespace PostsApi
                         ValidateAudience = false
                     };
                 });
+
+            services.AddScoped<IUserService, UserService>();
 
             services.AddControllers();
         }
