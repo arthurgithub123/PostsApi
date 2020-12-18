@@ -56,6 +56,7 @@ namespace PostsApi
                 });
 
             services.AddScoped<IUserService, UserService>();
+            services.AddScoped<ITokenService, TokenService>();
 
             services.AddControllers();
         }
