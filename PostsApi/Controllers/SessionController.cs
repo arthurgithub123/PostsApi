@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using PostsApi.Models.Entities.Identity;
 using PostsApi.Models.Token;
-using PostsApi.Models.ViewModels;
+using PostsApi.Models.ViewModels.User;
 using PostsApi.Services.Interfaces;
 using System.Collections.Generic;
 using System.Threading.Tasks;

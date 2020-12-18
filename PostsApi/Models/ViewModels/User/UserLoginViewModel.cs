@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace PostsApi.Models.ViewModels
+namespace PostsApi.Models.ViewModels.User
 {
     public class UserLoginViewModel
     {
