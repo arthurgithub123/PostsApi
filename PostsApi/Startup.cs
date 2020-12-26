@@ -58,6 +58,8 @@ namespace PostsApi
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<ITokenService, TokenService>();
 
+            services.AddCors();
+
             services.AddControllers();
         }
 
@@ -72,6 +74,13 @@ namespace PostsApi
             app.UseHttpsRedirection();
 
             app.UseRouting();
+
+            app.UseCors(options =>
+                options
+                    .AllowAnyOrigin()
+                    .AllowAnyHeader()
+                    .AllowAnyMethod()
+            );
 
             app.UseAuthentication();
 
