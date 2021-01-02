@@ -11,5 +11,12 @@ namespace PostsApi.Context
         {
 
         }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<ApplicationUser>()
+                .HasMany(applicationUser => applicationUser.Posts)
+                .WithOne(post => post.User);
+        }
     }
 }
