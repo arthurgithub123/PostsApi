@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using System;
+using System.Collections.Generic;
 
 namespace PostsApi.Models.Entities.Identity
 {
@@ -16,5 +17,6 @@ namespace PostsApi.Models.Entities.Identity
 
             return applicationUser.Avatar;
         }
+        public virtual ICollection<Post> Posts { get; set; }
     }
 }
