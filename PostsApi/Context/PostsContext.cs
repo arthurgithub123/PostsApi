@@ -20,6 +20,8 @@ namespace PostsApi.Context
             modelBuilder.Entity<ApplicationUser>()
                 .HasMany(applicationUser => applicationUser.Posts)
                 .WithOne(post => post.User);
+
+            base.OnModelCreating(modelBuilder);
         }
     }
 }
