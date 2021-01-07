@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using PostsApi.Models.Entities;
 using PostsApi.Models.Entities.Identity;
 using System;
 
@@ -11,6 +12,8 @@ namespace PostsApi.Context
         {
 
         }
+
+        public DbSet<Post> Posts { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
