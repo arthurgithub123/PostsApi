@@ -8,8 +8,6 @@ namespace PostsApi.Models.Entities
     public class Post : BaseModel
     {
         public string Description { get; set; }
-        [NotMapped]
-        public IFormFile Image { get; set; }
         public string ImageName { get; set; }
         public virtual ApplicationUser User { get; set; }
         public Guid? RecomendUserId { get; set; }
