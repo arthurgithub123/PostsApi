@@ -15,5 +15,9 @@
     </PackageReference>
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Assets\Posts\Images\" />
+  </ItemGroup>
+
 
 </Project>

@@ -5,13 +5,17 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using PostsApi.Context;
+using PostsApi.ErrorHandling;
 using PostsApi.Models.Entities.Identity;
+using PostsApi.Repositories.Generic;
 using PostsApi.Services.Implementations;
 using PostsApi.Services.Interfaces;
 using System;
+using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -55,8 +59,11 @@ namespace PostsApi
                     };
                 });
 
+            services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<ITokenService, TokenService>();
+            services.AddScoped<IPostService, PostService>();
 
             services.AddCors();
 
@@ -70,6 +77,8 @@ namespace PostsApi
             {
                 app.UseDeveloperExceptionPage();
             }
+
+            app.UseMiddleware<CustomExceptionMiddleware>();
 
             app.UseHttpsRedirection();
 
@@ -85,6 +94,12 @@ namespace PostsApi
             app.UseAuthentication();
 
             app.UseAuthorization();
+
+            app.UseStaticFiles(new StaticFileOptions
+            {
+                FileProvider = new PhysicalFileProvider(Path.Combine(env.ContentRootPath, "Assets")),
+                RequestPath = "/Assets"
+            });
 
             app.UseEndpoints(endpoints =>
             {
