@@ -185,7 +185,7 @@ namespace PostsApi.Services.Implementations
 
         private string SaveImage(IFormFile formFile)
         {
-            string fileFolderPath = Path.Combine(_webHostEnvironment.ContentRootPath, "Assets");
+            string fileFolderPath = Path.Combine(_webHostEnvironment.ContentRootPath, "Assets", "Posts", "Images");
 
             string imageFileName = Guid.NewGuid().ToString() + "_" + formFile.FileName;
 
