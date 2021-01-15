@@ -48,16 +48,17 @@ namespace PostsApi.Services.Implementations
                 post.ImageName = SaveImage(postViewModel.Image);
             }
             
+            post.CreatedAt = DateTime.UtcNow;
+            post.CreatorId = userId;
+            
             if(userRole == "Administrator")
             {
-                post.CreatedAt = DateTime.UtcNow;
-                post.CreatorId = userId;
+                post.IsCreatedByAdmin = true;
             }
             
             if(userRole == "Commom")
             {
-                post.RecomendDate = DateTime.UtcNow;
-                post.RecomendUserId = userId;
+                post.IsCreatedByAdmin = false;
             }
             
             _postRepository.Create(post);
@@ -71,39 +72,51 @@ namespace PostsApi.Services.Implementations
             }
 
             IQueryable<Post> posts = _postRepository.GetAll();
-            
+
+            if (filter == "all")
+            {
+                posts = posts
+                    .Where(post =>
+                        post.IsCreatedByAdmin ||
+                        (!post.IsCreatedByAdmin && post.AcceptedAt.HasValue)
+                    )
+                    .OrderByDescending(post => post.CreatedAt);
+            }
+
+            if (filter == "onlyAdministratorsPosts")
+            {
+                posts = posts
+                    .Where(post => post.IsCreatedByAdmin)
+                    .OrderByDescending(post => post.CreatedAt);
+            }
+
             if (userRole == "Administrator")
             {
-                if (filter == "all")
-                {
-                    posts.OrderByDescending(post => post.CreatedAt);
-                }
-
                 if(filter == "recomendedNotAccepted")
                 {
                     posts = posts
                         .Where(post => 
-                            post.RecomendDate.HasValue && 
+                            !post.IsCreatedByAdmin &&
                             !post.AcceptedAt.HasValue
                         )
-                        .OrderByDescending(post => post.RecomendDate);
+                        .OrderByDescending(post => post.CreatedAt);
                 }
 
                 if(filter == "recomendedAndAccepted")
                 {
                     posts = posts
-                        .Where(post => 
-                            post.RecomendDate.HasValue && 
+                        .Where(post =>
+                            !post.IsCreatedByAdmin &&
                             post.AcceptedAt.HasValue
                         )
-                        .OrderByDescending(post => post.RecomendDate);
+                        .OrderByDescending(post => post.CreatedAt);
                 }
 
                 if(filter == "recomendDate")
                 {
                     posts = posts
-                        .Where(post => post.RecomendDate.HasValue)
-                        .OrderByDescending(post => post.RecomendDate);
+                        .Where(post => !post.IsCreatedByAdmin)
+                        .OrderByDescending(post => post.CreatedAt);
                 }
 
                 if(filter == "acceptedDate")
@@ -112,33 +125,16 @@ namespace PostsApi.Services.Implementations
                         .Where(post => post.AcceptedAt.HasValue)
                         .OrderByDescending(post => post.AcceptedAt);
                 }
-
-                if(filter == "onlyAdministratorsPosts")
-                {
-                    posts = posts
-                        .Where(post => post.CreatedAt.HasValue)
-                        .OrderByDescending(post => post.CreatedAt);
-                }
             }
 
             if (userRole == "Commom")
             {
-                if(filter == "all")
-                {
-                    posts = posts
-                        .Where(post =>
-                            post.CreatedAt.HasValue ||
-                            post.AcceptedAt.HasValue
-                        )
-                        .OrderByDescending(post => post.CreatedAt);
-                }
-
                 if(filter == "accepted")
                 {
                     posts = posts
                         .Where(post => 
                             post.AcceptedAt.HasValue && 
-                            post.RecomendUserId.HasValue && post.RecomendUserId.Value == userId
+                            post.CreatorId == userId
                         )
                         .OrderByDescending(post => post.AcceptedAt);
                 }
@@ -148,25 +144,18 @@ namespace PostsApi.Services.Implementations
                     posts = posts
                         .Where(post =>
                             !post.AcceptedAt.HasValue &&
-                            post.RecomendUserId.HasValue && post.RecomendUserId == userId
+                            post.CreatorId == userId
                         )
-                        .OrderByDescending(post => post.RecomendDate);
+                        .OrderByDescending(post => post.CreatedAt);
                 }
 
                 if(filter == "onlyCommomUsersPosts")
                 {
                     posts = posts
                         .Where(post =>
-                            post.RecomendDate.HasValue &&
+                            !post.IsCreatedByAdmin &&
                             post.AcceptedAt.HasValue
                         )
-                        .OrderByDescending(post => post.RecomendDate);
-                }
-
-                if (filter == "onlyAdministratorsPosts")
-                {
-                    posts = posts
-                        .Where(post => post.CreatedAt.HasValue)
                         .OrderByDescending(post => post.CreatedAt);
                 }
             }
@@ -175,8 +164,7 @@ namespace PostsApi.Services.Implementations
             {
                 Id =  post.Id,
                 Description = post.Description,
-                CreatedAt = post.CreatedAt.HasValue ? post.CreatedAt : null,
-                RecomendDate = post.RecomendDate.HasValue ? post.RecomendDate : null,
+                CreatedAt = post.CreatedAt,
                 ImageUrl = "https://" + requestHost + requestPathBase + "/Assets/Posts/Images/" + post.ImageName
             });
 
