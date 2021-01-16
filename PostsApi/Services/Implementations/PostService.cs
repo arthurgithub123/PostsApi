@@ -82,81 +82,82 @@ namespace PostsApi.Services.Implementations
                     )
                     .OrderByDescending(post => post.CreatedAt);
             }
-
-            if (filter == "onlyAdministratorsPosts")
+            else if (filter == "onlyAdministratorsPosts")
             {
                 posts = posts
                     .Where(post => post.IsCreatedByAdmin)
                     .OrderByDescending(post => post.CreatedAt);
             }
-
-            if (userRole == "Administrator")
+            else
             {
-                if(filter == "recomendedNotAccepted")
+                if (userRole == "Administrator")
                 {
-                    posts = posts
-                        .Where(post => 
-                            !post.IsCreatedByAdmin &&
-                            !post.AcceptedAt.HasValue
-                        )
-                        .OrderByDescending(post => post.CreatedAt);
+                    if (filter == "recomendedNotAccepted")
+                    {
+                        posts = posts
+                            .Where(post =>
+                                !post.IsCreatedByAdmin &&
+                                !post.AcceptedAt.HasValue
+                            )
+                            .OrderByDescending(post => post.CreatedAt);
+                    }
+
+                    if (filter == "recomendedAndAccepted")
+                    {
+                        posts = posts
+                            .Where(post =>
+                                !post.IsCreatedByAdmin &&
+                                post.AcceptedAt.HasValue
+                            )
+                            .OrderByDescending(post => post.CreatedAt);
+                    }
+
+                    if (filter == "recomendDate")
+                    {
+                        posts = posts
+                            .Where(post => !post.IsCreatedByAdmin)
+                            .OrderByDescending(post => post.CreatedAt);
+                    }
+
+                    if (filter == "acceptedDate")
+                    {
+                        posts = posts
+                            .Where(post => post.AcceptedAt.HasValue)
+                            .OrderByDescending(post => post.AcceptedAt);
+                    }
                 }
 
-                if(filter == "recomendedAndAccepted")
+                if (userRole == "Commom")
                 {
-                    posts = posts
-                        .Where(post =>
-                            !post.IsCreatedByAdmin &&
-                            post.AcceptedAt.HasValue
-                        )
-                        .OrderByDescending(post => post.CreatedAt);
-                }
+                    if (filter == "accepted")
+                    {
+                        posts = posts
+                            .Where(post =>
+                                post.AcceptedAt.HasValue &&
+                                post.CreatorId == userId
+                            )
+                            .OrderByDescending(post => post.AcceptedAt);
+                    }
 
-                if(filter == "recomendDate")
-                {
-                    posts = posts
-                        .Where(post => !post.IsCreatedByAdmin)
-                        .OrderByDescending(post => post.CreatedAt);
-                }
+                    if (filter == "notAccepted")
+                    {
+                        posts = posts
+                            .Where(post =>
+                                !post.AcceptedAt.HasValue &&
+                                post.CreatorId == userId
+                            )
+                            .OrderByDescending(post => post.CreatedAt);
+                    }
 
-                if(filter == "acceptedDate")
-                {
-                    posts = posts
-                        .Where(post => post.AcceptedAt.HasValue)
-                        .OrderByDescending(post => post.AcceptedAt);
-                }
-            }
-
-            if (userRole == "Commom")
-            {
-                if(filter == "accepted")
-                {
-                    posts = posts
-                        .Where(post => 
-                            post.AcceptedAt.HasValue && 
-                            post.CreatorId == userId
-                        )
-                        .OrderByDescending(post => post.AcceptedAt);
-                }
-
-                if(filter == "notAccepted")
-                {
-                    posts = posts
-                        .Where(post =>
-                            !post.AcceptedAt.HasValue &&
-                            post.CreatorId == userId
-                        )
-                        .OrderByDescending(post => post.CreatedAt);
-                }
-
-                if(filter == "onlyCommomUsersPosts")
-                {
-                    posts = posts
-                        .Where(post =>
-                            !post.IsCreatedByAdmin &&
-                            post.AcceptedAt.HasValue
-                        )
-                        .OrderByDescending(post => post.CreatedAt);
+                    if (filter == "onlyCommomUsersPosts")
+                    {
+                        posts = posts
+                            .Where(post =>
+                                !post.IsCreatedByAdmin &&
+                                post.AcceptedAt.HasValue
+                            )
+                            .OrderByDescending(post => post.CreatedAt);
+                    }
                 }
             }
 
