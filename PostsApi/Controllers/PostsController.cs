@@ -1,10 +1,13 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using PostsApi.Models.Entities.Identity;
 using PostsApi.Models.ViewModels;
 using PostsApi.Services.Interfaces;
 using System;
+using System.IO;
 using System.Linq;
 
 namespace PostsApi.Controllers
@@ -14,14 +17,16 @@ namespace PostsApi.Controllers
     [ApiController]
     public class PostsController : ControllerBase
     {
-        public PostsController(IPostService postService, UserManager<ApplicationUser> userManager)
+        public PostsController(IPostService postService, UserManager<ApplicationUser> userManager, IWebHostEnvironment webHostEnvironment)
         {
             _postService = postService;
             _userManager = userManager;
+            _webHostEnvironment = webHostEnvironment;
         }
 
         private readonly IPostService _postService;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IWebHostEnvironment _webHostEnvironment;
 
         [HttpPost("Create")]
         public IActionResult AdministratorCreate([FromForm] PostViewModel postViewModel)
