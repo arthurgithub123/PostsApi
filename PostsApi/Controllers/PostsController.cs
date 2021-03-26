@@ -56,5 +56,15 @@ namespace PostsApi.Controllers
             return Ok(posts);
         }
     
+        [HttpGet("ListById/{id}")]
+        public IActionResult ListById(Guid id)
+        {
+            ApplicationUser applicationUser = _userManager.GetUserAsync(this.User).Result;
+            string userRole = _userManager.GetRolesAsync(applicationUser).Result[0];
+
+            PostViewModel postViewModel = _postService.GetById(id, applicationUser.Id, userRole, Request.Host.ToString(), Request.PathBase);
+            
+            return Ok(postViewModel);
+        }
     }
 }
