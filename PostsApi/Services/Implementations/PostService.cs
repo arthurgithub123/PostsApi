@@ -188,5 +188,23 @@ namespace PostsApi.Services.Implementations
 
             return imageFileName;
         }
+
+        private string DeleteCurrentImageAndSaveNew(IFormFile formFile, string existingUserProfileImage)
+        {
+            string fileFolderPath = Path.Combine(_webHostEnvironment.ContentRootPath, "Assets", "Posts", "Images");
+
+            System.IO.File.Delete(Path.Combine(fileFolderPath, existingUserProfileImage));
+
+            string imageFileName = Guid.NewGuid().ToString() + "_" + formFile.FileName;
+
+            string folderPathAndImageFileName = Path.Combine(fileFolderPath, imageFileName);
+
+            using (var fileStream = new FileStream(folderPathAndImageFileName, FileMode.Create))
+            {
+                formFile.CopyTo(fileStream);
+            }
+
+            return imageFileName;
+        }
     }
 }
