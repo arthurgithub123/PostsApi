@@ -1,13 +1,11 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using PostsApi.Models.Entities.Identity;
 using PostsApi.Models.ViewModels;
 using PostsApi.Services.Interfaces;
 using System;
-using System.IO;
 using System.Linq;
 
 namespace PostsApi.Controllers
