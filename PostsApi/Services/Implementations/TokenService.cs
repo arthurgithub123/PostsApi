@@ -23,7 +23,7 @@ namespace PostsApi.Services.Implementations
 
             SigningCredentials signingCredentials = new SigningCredentials(symmetricSecurityKey, SecurityAlgorithms.HmacSha256);
 
-            DateTime expirationTime = DateTime.UtcNow.AddMinutes(5);
+            DateTime expirationTime = DateTime.UtcNow.AddHours(1);
 
             JwtSecurityToken jwtSecurityToken = new JwtSecurityToken(
                 claims: claims,
