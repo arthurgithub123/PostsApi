@@ -11,5 +11,6 @@ namespace PostsApi.Models.ViewModels
         public string ImageUrl { get; set; }
         public DateTime? CreatedAt { get; set; }
         public DateTime? RecomendDate { get; set; }
+        public bool CanEdit { get; set; }
     }
 }
