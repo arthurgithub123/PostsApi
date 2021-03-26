@@ -166,7 +166,8 @@ namespace PostsApi.Services.Implementations
                 Id =  post.Id,
                 Description = post.Description,
                 CreatedAt = post.CreatedAt,
-                ImageUrl = "https://" + requestHost + requestPathBase + "/Assets/Posts/Images/" + post.ImageName
+                ImageUrl = !String.IsNullOrEmpty(post.ImageName) ? "https://" + requestHost + requestPathBase + "/Assets/Posts/Images/" + post.ImageName : null,
+                CanEdit = post.CreatorId == userId ? true : false
             });
 
             return postsList;
