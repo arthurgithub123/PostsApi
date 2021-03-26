@@ -203,6 +203,60 @@ namespace PostsApi.Services.Implementations
             };
         }
 
+        public void Edit(Guid id, Guid userId, string userRole, PostViewModel postViewModel)
+        {
+            Post post = _postRepository.GetById(id);
+
+            if (post == null)
+            {
+                throw new HttpResponseException(400, "Post inexistente");
+            }
+
+            if (userRole == "Commom" && post.CreatorId != userId)
+            {
+                throw new HttpResponseException(400, "Não é possível alterar posts de outra pessoa");
+            }
+
+            if (String.IsNullOrEmpty(postViewModel.Description) &&
+                String.IsNullOrEmpty(postViewModel.ImageUrl)
+            )
+            {
+                throw new HttpResponseException(400, "Preencha, pelo menos, a descrição ou a imagem");
+            }
+
+            post.Description = postViewModel.Description;
+
+            if (!String.IsNullOrEmpty(postViewModel.ImageUrl) &&
+                postViewModel.ImageUrl != "notChanged"
+            )
+            {
+                if (!String.IsNullOrEmpty(post.ImageName))
+                {
+                    post.ImageName = DeleteCurrentImageAndSaveNew(postViewModel.Image, post.ImageName);
+                }
+                else
+                {
+                    post.ImageName = SaveImage(postViewModel.Image);
+                }
+            }
+
+            if (String.IsNullOrEmpty(postViewModel.ImageUrl) &&
+                !String.IsNullOrEmpty(post.ImageName)
+            )
+            {
+                string fileFolderPath = Path.Combine(_webHostEnvironment.ContentRootPath, "Assets", "Posts", "Images");
+
+                System.IO.File.Delete(Path.Combine(fileFolderPath, post.ImageName));
+
+                post.ImageName = null;
+            }
+
+            post.EditorId = userId;
+            post.EditedAt = DateTime.UtcNow;
+
+            _postRepository.Update(post);
+        }
+
         private string SaveImage(IFormFile formFile)
         {
             string fileFolderPath = Path.Combine(_webHostEnvironment.ContentRootPath, "Assets", "Posts", "Images");
