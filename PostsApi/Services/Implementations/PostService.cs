@@ -173,6 +173,36 @@ namespace PostsApi.Services.Implementations
             return postsList;
         }
 
+        public PostViewModel GetById(Guid id, Guid userId, string userRole, string requestHost, string requestPathBase)
+        {
+            Post post = _postRepository.GetById(id);
+
+            if(post == null)
+            {
+                throw new HttpResponseException(400, "Post inexistente");
+            }
+
+            if(userRole == "Commom")
+            {
+                if (post.CreatorId != userId)
+                {
+                    throw new HttpResponseException(400, "Não é possível alterar posts de outra pessoa");
+                }
+            }
+
+            return new PostViewModel
+            {
+                Id = post.Id,
+                Description = !String.IsNullOrEmpty(post.Description)
+                    ? post.Description
+                    : null,
+                CreatedAt = post.CreatedAt,
+                ImageUrl = !String.IsNullOrEmpty(post.ImageName)
+                    ? "https://" + requestHost + requestPathBase + "/Assets/Posts/Images/" + post.ImageName
+                    : null
+            };
+        }
+
         private string SaveImage(IFormFile formFile)
         {
             string fileFolderPath = Path.Combine(_webHostEnvironment.ContentRootPath, "Assets", "Posts", "Images");
