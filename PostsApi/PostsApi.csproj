@@ -17,6 +17,7 @@
 
   <ItemGroup>
     <Folder Include="Assets\Posts\Images\" />
+    <Folder Include="Assets\Users\Avatars\" />
   </ItemGroup>
 
 
