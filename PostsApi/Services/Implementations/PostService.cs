@@ -212,7 +212,7 @@ namespace PostsApi.Services.Implementations
                 throw new HttpResponseException(400, "Post inexistente");
             }
 
-            if (userRole == "Commom" && post.CreatorId != userId)
+            if (post.CreatorId != userId)
             {
                 throw new HttpResponseException(400, "Não é possível alterar posts de outra pessoa");
             }
