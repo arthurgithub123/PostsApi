@@ -10,7 +10,7 @@ namespace PostsApi.Models.Entities
         public string Description { get; set; }
         public string ImageName { get; set; }
         public virtual ApplicationUser User { get; set; }
-        public DateTime? AcceptedUserId { get; set; }
+        public Guid? AcceptedUserId { get; set; }
         public DateTime? AcceptedAt { get; set; }
         public bool IsCreatedByAdmin { get; set; }
     }
