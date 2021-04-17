@@ -43,6 +43,21 @@ namespace PostsApi.Controllers
             });
         }
 
+        [Authorize(Roles = "Administrator")]
+        [HttpPut("Accept/{id}")]
+        public IActionResult Accept(Guid id)
+        {
+            ApplicationUser applicationUser = _userManager.GetUserAsync(this.User).Result;
+
+            _postService.Accept(id, applicationUser.Id);
+
+            return Ok(new
+            {
+                StatusCode = 200,
+                Message = "Post aceito com sucesso"
+            });
+        }
+
         [HttpGet("List/{filter}")]
         public IActionResult List(string filter)
         {

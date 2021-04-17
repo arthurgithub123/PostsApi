@@ -64,6 +64,15 @@ namespace PostsApi.Services.Implementations
             _postRepository.Create(post);
         }
         
+        public void Accept(Guid id, Guid userId)
+        {
+            Post post = _postRepository.GetById(id);
+            post.AcceptedUserId = userId;
+            post.AcceptedAt = DateTime.UtcNow;
+
+            _postRepository.Update(post);
+        }
+
         public IQueryable<PostViewModel> GetAll(Guid userId, string userRole, string filter, string requestHost, string requestPathBase)
         {
             if (String.IsNullOrEmpty(filter))
