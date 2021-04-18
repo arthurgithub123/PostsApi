@@ -158,6 +158,17 @@ namespace PostsApi.Services.Implementations
                             )
                             .OrderByDescending(post => post.CreatedAt);
                     }
+                    
+                    if(filter == "myCreatedPosts")
+                    {
+                        posts = posts
+                            .Where(post =>
+                                !post.AcceptedAt.HasValue &&
+                                !post.RejectedAt.HasValue &&
+                                post.CreatorId == userId
+                            )
+                            .OrderByDescending(post => post.CreatedAt);
+                    }
 
                     if (filter == "onlyCommomUsersPosts")
                     {
