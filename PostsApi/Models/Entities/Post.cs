@@ -12,6 +12,8 @@ namespace PostsApi.Models.Entities
         public virtual ApplicationUser User { get; set; }
         public Guid? AcceptedUserId { get; set; }
         public DateTime? AcceptedAt { get; set; }
+        public Guid? RejectedUserId { get; set; }
+        public DateTime? RejectedAt { get; set; }
         public bool IsCreatedByAdmin { get; set; }
     }
 }
