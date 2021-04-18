@@ -152,6 +152,7 @@ namespace PostsApi.Services.Implementations
                     {
                         posts = posts
                             .Where(post =>
+                                post.RejectedAt.HasValue &&
                                 !post.AcceptedAt.HasValue &&
                                 post.CreatorId == userId
                             )
