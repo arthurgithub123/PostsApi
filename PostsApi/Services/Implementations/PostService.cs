@@ -101,12 +101,13 @@ namespace PostsApi.Services.Implementations
             {
                 if (userRole == "Administrator")
                 {
-                    if (filter == "recomendedNotAccepted")
+                    if (filter == "recomendedNotAcceptedYet")
                     {
                         posts = posts
                             .Where(post =>
                                 !post.IsCreatedByAdmin &&
-                                !post.AcceptedAt.HasValue
+                                !post.AcceptedAt.HasValue &&
+                                !post.RejectedAt.HasValue
                             )
                             .OrderByDescending(post => post.CreatedAt);
                     }
