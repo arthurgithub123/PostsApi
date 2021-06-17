@@ -85,10 +85,9 @@ namespace PostsApi.Controllers
         [HttpPut("Edit/{id}")]
         public IActionResult Edit(Guid id, [FromForm] PostViewModel postViewModel)
         {
-            ApplicationUser applicationUser = _userManager.GetUserAsync(this.User).Result;
-            string userRole = _userManager.GetRolesAsync(applicationUser).Result[0];
+            string userRole = _userManager.GetRolesAsync(ApplicationUser).Result[0];
 
-            _postService.Edit(id, applicationUser.Id, userRole, postViewModel);
+            _postService.Edit(id, ApplicationUser.Id, userRole, postViewModel);
 
             return Ok();
         }
