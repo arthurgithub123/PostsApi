@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Filters;
 using PostsApi.Models.Entities.Identity;
 using PostsApi.Models.ViewModels;
 using PostsApi.Services.Interfaces;
@@ -13,7 +14,7 @@ namespace PostsApi.Controllers
     [Authorize(Roles = "Administrator, Commom")]
     [Route("api/Posts")]
     [ApiController]
-    public class PostsController : ControllerBase
+    public class PostsController : Controller
     {
         public PostsController(IPostService postService, UserManager<ApplicationUser> userManager, IWebHostEnvironment webHostEnvironment)
         {
@@ -25,6 +26,13 @@ namespace PostsApi.Controllers
         private readonly IPostService _postService;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IWebHostEnvironment _webHostEnvironment;
+
+        public ApplicationUser ApplicationUser { get; set; }
+
+        public override void OnActionExecuting(ActionExecutingContext filterContext)
+        {
+            ApplicationUser = _userManager.GetUserAsync(this.User).Result;
+        }
 
         [HttpPost("Create")]
         public IActionResult AdministratorCreate([FromForm] PostViewModel postViewModel)
