@@ -53,9 +53,7 @@ namespace PostsApi.Controllers
         [HttpPut("Accept/{id}")]
         public IActionResult Accept(Guid id)
         {
-            ApplicationUser applicationUser = _userManager.GetUserAsync(this.User).Result;
-
-            _postService.Accept(id, applicationUser.Id);
+            _postService.Accept(id, ApplicationUser.Id);
 
             return Ok(new
             {
