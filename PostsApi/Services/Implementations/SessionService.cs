@@ -150,5 +150,33 @@ namespace PostsApi.Services.Implementations
                 }
             }
         }
+
+        public async Task<UserToken> Login(UserLoginViewModel userLoginViewModel, bool isModelStateValid)
+        {
+            if (!isModelStateValid)
+            {
+                throw new HttpResponseException(400, "E-mail e senha devem ser informados");
+            }
+
+            var loginResult = await _signInManager.PasswordSignInAsync(
+                userLoginViewModel.Email,
+                userLoginViewModel.Password,
+                isPersistent: false,
+                lockoutOnFailure: false
+            );
+
+            if (!loginResult.Succeeded)
+            {
+                throw new HttpResponseException(400, "Login inválido");
+            }
+
+            ApplicationUser applicationUser = await _userManager.FindByEmailAsync(userLoginViewModel.Email);
+
+            IList<string> userRoles = await _userManager.GetRolesAsync(applicationUser);
+
+            string jwtSecretKey = _configuration["JWT:Key"];
+
+            return _tokenService.BuildToken(applicationUser, userRoles[0], jwtSecretKey);
+        }
     }
 }

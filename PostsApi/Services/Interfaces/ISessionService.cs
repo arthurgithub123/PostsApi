@@ -8,5 +8,6 @@ namespace PostsApi.Services.Interfaces
     {
         public Task<UserToken> CreateAdministrator(UserCreateViewModel userCreateViewModel, bool isModelStateValid);
         public Task<UserToken> CreateCommom(UserCreateViewModel userCreateViewModel, bool isModelStateValid);
+        public Task<UserToken> Login(UserLoginViewModel userLoginViewModel, bool isModelStateValid);
     }
 }
