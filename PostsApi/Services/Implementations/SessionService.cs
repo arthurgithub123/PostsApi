@@ -91,5 +91,64 @@ namespace PostsApi.Services.Implementations
                 }
             }
         }
+
+        public async Task<UserToken> CreateCommom(UserCreateViewModel userCreateViewModel, bool isModelStateValid)
+        {
+            if (!isModelStateValid)
+            {
+                throw new HttpResponseException(400, "E-mail e senha devem ser informados");
+            }
+
+            var emailExists = await _userManager.FindByEmailAsync(userCreateViewModel.Email);
+
+            if (emailExists != null)
+            {
+                throw new HttpResponseException(400, "Já existe uma conta com o e-mail informado");
+            }
+
+            var applicationUser = new ApplicationUser
+            {
+                Name = userCreateViewModel.Name,
+                Email = userCreateViewModel.Email,
+                UserName = userCreateViewModel.Email
+            };
+
+            if (userCreateViewModel.Avatar != null && userCreateViewModel.Avatar.Length > 0)
+            {
+                string imageFileName = _userService.SaveProfileImage(userCreateViewModel.Avatar);
+
+                applicationUser.Avatar = imageFileName;
+            }
+
+            var createResult = await _userManager.CreateAsync(applicationUser, userCreateViewModel.Password);
+
+            if (!createResult.Succeeded)
+            {
+                throw new HttpResponseException(400, "Usuário ou senha inválidos");
+            }
+            else
+            {
+                await _userManager.AddToRoleAsync(applicationUser, "Commom");
+
+                var signInResult = await _signInManager.PasswordSignInAsync(
+                    userCreateViewModel.Email,
+                    userCreateViewModel.Password,
+                    isPersistent: false,
+                    lockoutOnFailure: false
+                );
+
+                if (!signInResult.Succeeded)
+                {
+                    throw new HttpResponseException(400, "Login inválido");
+                }
+                else
+                {
+                    IList<string> userRoles = await _userManager.GetRolesAsync(applicationUser);
+                    string jwtSecretKey = _configuration["JWT:Key"];
+
+                    return _tokenService.BuildToken(applicationUser, userRoles[0], jwtSecretKey);
+                }
+            }
+        }
     }
 }
