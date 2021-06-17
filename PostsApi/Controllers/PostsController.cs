@@ -65,10 +65,9 @@ namespace PostsApi.Controllers
         [HttpGet("List/{filter}")]
         public IActionResult List(string filter)
         {
-            ApplicationUser applicationUser = _userManager.GetUserAsync(this.User).Result;
-            string userRole = _userManager.GetRolesAsync(applicationUser).Result[0];
-
-            IQueryable<PostViewModel> posts = _postService.GetAll(applicationUser.Id, userRole, filter, Request.Host.ToString(), Request.PathBase);
+            string userRole = _userManager.GetRolesAsync(ApplicationUser).Result[0];
+            
+            IQueryable<PostViewModel> posts = _postService.GetAll(ApplicationUser.Id, userRole, filter, Request.Host.ToString(), Request.PathBase);
 
             return Ok(posts);
         }
