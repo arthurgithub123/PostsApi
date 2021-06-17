@@ -17,16 +17,14 @@ namespace PostsApi.Controllers
     [ApiController]
     public class PostsController : Controller
     {
-        public PostsController(IPostService postService, UserManager<ApplicationUser> userManager, IWebHostEnvironment webHostEnvironment)
+        public PostsController(IPostService postService, UserManager<ApplicationUser> userManager)
         {
             _postService = postService;
             _userManager = userManager;
-            _webHostEnvironment = webHostEnvironment;
         }
 
         private readonly IPostService _postService;
         private readonly UserManager<ApplicationUser> _userManager;
-        private readonly IWebHostEnvironment _webHostEnvironment;
 
         public ApplicationUser ApplicationUser { get; set; }
 
