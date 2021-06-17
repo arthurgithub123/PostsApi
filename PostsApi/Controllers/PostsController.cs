@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
@@ -41,10 +42,10 @@ namespace PostsApi.Controllers
 
             _postService.CreateOrRecommend(ApplicationUser.Id, userRole, postViewModel);
 
-            return Ok(new
+            return StatusCode(StatusCodes.Status201Created, new
             {
-                StatusCode = 201, 
-                Message = "Post cadastrado com sucesso" 
+                StatusCode = 201,
+                Message = "Post cadastrado com sucesso"
             });
         }
 
