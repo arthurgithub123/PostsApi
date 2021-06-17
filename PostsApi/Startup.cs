@@ -64,7 +64,8 @@ namespace PostsApi
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<ITokenService, TokenService>();
             services.AddScoped<IPostService, PostService>();
-
+            services.AddScoped<ISessionService, SessionService>();
+            
             services.AddCors();
 
             services.AddControllers();
