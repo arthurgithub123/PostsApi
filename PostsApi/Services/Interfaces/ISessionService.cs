@@ -1,0 +1,11 @@
+﻿using PostsApi.Models.Token;
+using PostsApi.Models.ViewModels.User;
+using System.Threading.Tasks;
+
+namespace PostsApi.Services.Interfaces
+{
+    public interface ISessionService
+    {
+        public Task<UserToken> CreateAdministrator(UserCreateViewModel userCreateViewModel, bool isModelStateValid);
+    }
+}
