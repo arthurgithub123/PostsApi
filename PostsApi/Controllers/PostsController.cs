@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using PostsApi.Models.Entities.Identity;
+using PostsApi.Models.Pagination;
 using PostsApi.Models.ViewModels;
 using PostsApi.Services.Interfaces;
 using System;
@@ -60,15 +61,25 @@ namespace PostsApi.Controllers
         }
 
         [HttpGet("List/{filter}")]
-        public IActionResult List(string filter)
+        public IActionResult List(string filter, [FromQuery] PaginationQueryParams paginationQueryParams)
         {
             string userRole = _userManager.GetRolesAsync(ApplicationUser).Result[0];
-            
-            IQueryable<PostViewModel> posts = _postService.GetAll(ApplicationUser.Id, userRole, filter, Request.Host.ToString(), Request.PathBase);
 
-            return Ok(posts);
+            string paginationUrl = string.Concat(Request.Scheme, "://", Request.Host, Request.Path);
+            
+            PaginationResponse<PostViewModel> paginationResponse = _postService.GetAll(
+                ApplicationUser.Id, 
+                userRole, 
+                filter, 
+                Request.Host.ToString(), 
+                Request.PathBase, 
+                paginationQueryParams, 
+                paginationUrl
+           );
+
+            return Ok(paginationResponse);
         }
-    
+
         [HttpGet("ListById/{id}")]
         public IActionResult ListById(Guid id)
         {

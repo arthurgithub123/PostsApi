@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using PostsApi.ErrorHandling;
 using PostsApi.Models.Entities;
+using PostsApi.Models.Pagination;
 using PostsApi.Models.ViewModels;
 using PostsApi.Repositories.Generic;
 using PostsApi.Services.Interfaces;
@@ -73,7 +74,7 @@ namespace PostsApi.Services.Implementations
             _postRepository.Update(post);
         }
 
-        public IQueryable<PostViewModel> GetAll(Guid userId, string userRole, string filter, string requestHost, string requestPathBase)
+        public PaginationResponse<PostViewModel> GetAll(Guid userId, string userRole, string filter, string requestHost, string requestPathBase, PaginationQueryParams paginationQueryParams, string paginationUrl)
         {
             if (String.IsNullOrEmpty(filter))
             {
@@ -183,16 +184,28 @@ namespace PostsApi.Services.Implementations
                 }
             }
 
-            var postsList = posts.Select(post => new PostViewModel
-            {
-                Id =  post.Id,
-                Description = post.Description,
-                CreatedAt = post.CreatedAt,
-                ImageUrl = !String.IsNullOrEmpty(post.ImageName) ? "https://" + requestHost + requestPathBase + "/Assets/Posts/Images/" + post.ImageName : null,
-                CanEdit = post.CreatorId == userId ? true : false
-            });
+            var totalRecords = posts.Count();
 
-            return postsList;
+            var postsList = posts
+                .Skip((paginationQueryParams.Page - 1) * paginationQueryParams.Per_Page)
+                .Take(paginationQueryParams.Per_Page)
+                .Select(post => new PostViewModel
+                {
+                    Id =  post.Id,
+                    Description = post.Description,
+                    CreatedAt = post.CreatedAt,
+                    ImageUrl = !String.IsNullOrEmpty(post.ImageName) ? "https://" + requestHost + requestPathBase + "/Assets/Posts/Images/" + post.ImageName : null,
+                    CanEdit = post.CreatorId == userId ? true : false
+                });
+
+            PaginationResponse<PostViewModel> paginationResponse = PaginationHelper<PostViewModel>.CreateResponseWithPagination(
+                postsList,
+                totalRecords,
+                paginationQueryParams,
+                paginationUrl
+            );
+            
+            return paginationResponse;
         }
 
         public PostViewModel GetById(Guid id, Guid userId, string userRole, string requestHost, string requestPathBase)
