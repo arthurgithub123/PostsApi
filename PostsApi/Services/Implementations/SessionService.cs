@@ -104,6 +104,23 @@ namespace PostsApi.Services.Implementations
             EmailHelper.SendEmail(name, email, adminCreateViewModel.Name, adminCreateViewModel.Email, subject, htmlBody, email, password);            
         }
 
+        public async Task CreatePassword(PasswordCreateViewModel passwordCreateViewModel, bool isModelStateValid)
+        {
+            if (!isModelStateValid)
+            {
+                throw new HttpResponseException(400, "E-mail, senha e token são necessários");
+            }
+            
+            var applicationUser = await _userManager.FindByEmailAsync(passwordCreateViewModel.Email);
+
+            var result = await _userManager.ResetPasswordAsync(applicationUser, passwordCreateViewModel.Token, passwordCreateViewModel.Password);
+            
+            if (!result.Succeeded)
+            {
+                throw new HttpResponseException(500, "Erro ao criar senha");
+            }
+        }
+
         public async Task<UserToken> CreateCommom(UserCreateViewModel userCreateViewModel, bool isModelStateValid)
         {
             if (!isModelStateValid)
