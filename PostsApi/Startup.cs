@@ -37,8 +37,11 @@ namespace PostsApi
 
             services
                 .AddIdentity<ApplicationUser, ApplicationRole>()
-                .AddEntityFrameworkStores<PostsContext>();
+                .AddEntityFrameworkStores<PostsContext>()
+                .AddDefaultTokenProviders();
 
+            services.Configure<DataProtectionTokenProviderOptions>(options => options.TokenLifespan = TimeSpan.FromHours(1));
+            
             services.AddAuthentication(options =>
             {
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
