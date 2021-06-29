@@ -40,6 +40,18 @@ namespace PostsApi.Controllers
             return StatusCode(StatusCodes.Status201Created, userToken);
         }
 
+        [HttpPost("Password/Create")]
+        public async Task<IActionResult> CreatePassword(PasswordCreateViewModel passwordCreateViewModel)
+        {
+            await _sessionService.CreatePassword(passwordCreateViewModel, ModelState.IsValid);
+            
+            return Ok(new
+            {
+                StatusCode = 200,
+                Message = "Senha criada com sucesso"
+            });
+        }
+
         [HttpPost("Login")]
         public async Task<ActionResult<UserToken>> Login(UserLoginViewModel userLoginViewModel)
         {
