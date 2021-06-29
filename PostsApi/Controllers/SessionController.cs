@@ -21,11 +21,15 @@ namespace PostsApi.Controllers
         
         [Authorize(Roles = "Administrator")]
         [HttpPost("Administrator/Create")]
-        public async Task<ActionResult<UserToken>> CreateAdministrator(UserCreateViewModel userCreateViewModel)
+        public async Task<ActionResult> CreateAdministrator(AdminCreateViewModel adminCreateViewModel)
         {
-            UserToken userToken = await _sessionService.CreateAdministrator(userCreateViewModel, ModelState.IsValid);
+            await _sessionService.CreateAdministrator(adminCreateViewModel, ModelState.IsValid);
 
-            return StatusCode(StatusCodes.Status201Created, userToken);
+            return StatusCode(StatusCodes.Status201Created, new
+            {
+                StatusCode = 201,
+                Message = "Administrador cadastrado com sucesso"
+            });
         }
 
         [HttpPost("Commom/Create")]
@@ -35,7 +39,7 @@ namespace PostsApi.Controllers
 
             return StatusCode(StatusCodes.Status201Created, userToken);
         }
-        
+
         [HttpPost("Login")]
         public async Task<ActionResult<UserToken>> Login(UserLoginViewModel userLoginViewModel)
         {
