@@ -14,7 +14,7 @@ Posts de usuários comuns devem ser aceitos por usuários administradores.
 - [x] Listagem de Posts
 - [x] Alteração de Posts
 - [ ] Exclusão de Posts
-- [ ] Paginação
+- [x] Paginação
 - [ ] Adicionar usuários admins
 - [ ] Envio de token por e-mail para um novo admin criar sua senha
 - [ ] Envio de token por e-mail para alteração de senha
