@@ -74,34 +74,7 @@ namespace PostsApi.Services.Implementations
                 await _userManager.AddToRoleAsync(applicationUser, "Administrator");
             }
 
-            string resetToken = await _userManager.GeneratePasswordResetTokenAsync(applicationUser);
-
-            if (string.IsNullOrEmpty(resetToken))
-            {
-                throw new HttpResponseException(500, "Erro ao gerar token para criar a senha");
-            }
-
-            string resetPageWithTokenAndEmail = string.Concat("http://localhost:3000/users/create_password", "?token=", resetToken, "&email=", adminCreateViewModel.Email);
-
-            string email = _configuration["Email:Email"];
-            string password = _configuration["Email:Password"];
-            string name = _configuration["Email:Name"];
-
-            string subject = "Posts API - Criação de senha";
-            
-            string shortLinkDescription = resetPageWithTokenAndEmail.Substring(0, 80);
-
-            string htmlBody = string.Concat(
-                "<div style='text-align: center;'>",
-                    "<p>Olá, ", adminCreateViewModel.Name, "</p>",
-                    "<p>Clique no link abaixo para criar sua senha: <p>",
-                    "<p><a href='", resetPageWithTokenAndEmail, "'>", shortLinkDescription, "</a></p>",
-                    "<p>Obrigado, </p>",
-                    "<p>Equipe Posts API</p>",
-                "</div>"
-            );
-            
-            EmailHelper.SendEmail(name, email, adminCreateViewModel.Name, adminCreateViewModel.Email, subject, htmlBody, email, password);            
+            await GeneratePasswordResetTokenAndEmail(applicationUser);
         }
 
         public async Task CreatePassword(PasswordCreateViewModel passwordCreateViewModel, bool isModelStateValid)
@@ -206,6 +179,38 @@ namespace PostsApi.Services.Implementations
             string jwtSecretKey = _configuration["JWT:Key"];
 
             return _tokenService.BuildToken(applicationUser, userRoles[0], jwtSecretKey);
+        }
+
+        private async Task GeneratePasswordResetTokenAndEmail(ApplicationUser applicationUser)
+        {
+            string resetToken = await _userManager.GeneratePasswordResetTokenAsync(applicationUser);
+
+            if (string.IsNullOrEmpty(resetToken))
+            {
+                throw new HttpResponseException(500, "Erro ao gerar token para criar a senha");
+            }
+
+            string resetPageWithTokenAndEmail = string.Concat("http://localhost:3000/users/create_password", "?token=", resetToken, "&email=", applicationUser.Email);
+
+            string email = _configuration["Email:Email"];
+            string password = _configuration["Email:Password"];
+            string name = _configuration["Email:Name"];
+
+            string subject = "Posts API - Criação de senha";
+
+            string shortLinkDescription = resetPageWithTokenAndEmail.Substring(0, 80);
+
+            string htmlBody = string.Concat(
+                "<div style='text-align: center;'>",
+                    "<p>Olá, ", applicationUser.Name, "</p>",
+                    "<p>Clique no link abaixo para criar sua senha: <p>",
+                    "<p><a href='", resetPageWithTokenAndEmail, "'>", shortLinkDescription, "</a></p>",
+                    "<p>Obrigado, </p>",
+                    "<p>Equipe Posts API</p>",
+                "</div>"
+            );
+
+            EmailHelper.SendEmail(name, email, applicationUser.Name, applicationUser.Email, subject, htmlBody, email, password);
         }
     }
 }
