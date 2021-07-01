@@ -52,6 +52,18 @@ namespace PostsApi.Controllers
             });
         }
 
+        [HttpGet("Password/Forgot/{email}")]
+        public async Task<IActionResult> ForgotPassword(string email)
+        {
+            await _sessionService.ForgotPassword(email);
+        
+            return Ok(new
+            {
+                StatusCode = 200,
+                Message = "E-mail com link para nova senha enviado com sucesso"
+            });
+        }
+
         [HttpPost("Login")]
         public async Task<ActionResult<UserToken>> Login(UserLoginViewModel userLoginViewModel)
         {

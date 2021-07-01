@@ -9,6 +9,7 @@ namespace PostsApi.Services.Interfaces
         public Task CreateAdministrator(AdminCreateViewModel adminCreateViewModel, bool isModelStateValid);
         public Task<UserToken> CreateCommom(UserCreateViewModel userCreateViewModel, bool isModelStateValid);
         public Task CreatePassword(PasswordCreateViewModel passwordCreateViewModel, bool isModelStateValid);
+        public Task ForgotPassword(string email);
         public Task<UserToken> Login(UserLoginViewModel userLoginViewModel, bool isModelStateValid);
     }
 }

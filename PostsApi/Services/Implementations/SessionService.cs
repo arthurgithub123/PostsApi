@@ -153,6 +153,18 @@ namespace PostsApi.Services.Implementations
             }
         }
 
+        public async Task ForgotPassword(string userEmail)
+        {
+            ApplicationUser applicationUser = await _userManager.FindByEmailAsync(userEmail);
+
+            if (applicationUser == null)
+            {
+                throw new HttpResponseException(400, "Não existe um usuário esse e-mail");
+            }
+
+            await GeneratePasswordResetTokenAndEmail(applicationUser);
+        }
+
         public async Task<UserToken> Login(UserLoginViewModel userLoginViewModel, bool isModelStateValid)
         {
             if (!isModelStateValid)
