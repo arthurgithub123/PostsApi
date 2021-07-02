@@ -34,7 +34,7 @@ namespace PostsApi.Controllers
         }
 
         [HttpPost("")]
-        public IActionResult AdministratorCreate([FromForm] PostViewModel postViewModel)
+        public IActionResult CreateOrRecommend([FromForm] PostViewModel postViewModel)
         {
             string userRole = _userManager.GetRolesAsync(ApplicationUser).Result[0];
 
