@@ -12,7 +12,7 @@ using System.Linq;
 
 namespace PostsApi.Controllers
 {
-    [Authorize(Roles = "Administrator, Commom")]
+    [Authorize(Roles = "Administrator, Common")]
     [Route("api/Posts")]
     [ApiController]
     public class PostsController : Controller

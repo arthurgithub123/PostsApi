@@ -94,8 +94,8 @@ namespace PostsApi.Services.Implementations
                 throw new HttpResponseException(500, "Erro ao criar senha");
             }
         }
-
-        public async Task<UserToken> CreateCommom(UserCreateViewModel userCreateViewModel, bool isModelStateValid)
+        
+        public async Task<UserToken> CreateCommon(UserCreateViewModel userCreateViewModel, bool isModelStateValid)
         {
             if (!isModelStateValid)
             {
@@ -131,7 +131,7 @@ namespace PostsApi.Services.Implementations
             }
             else
             {
-                await _userManager.AddToRoleAsync(applicationUser, "Commom");
+                await _userManager.AddToRoleAsync(applicationUser, "Common");
 
                 var signInResult = await _signInManager.PasswordSignInAsync(
                     userCreateViewModel.Email,

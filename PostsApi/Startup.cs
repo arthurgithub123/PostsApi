@@ -117,7 +117,7 @@ namespace PostsApi
         {
             var roleManager = serviceProvider.GetRequiredService<RoleManager<ApplicationRole>>();
 
-            string[] rolesNames = { "Administrator", "Commom" };
+            string[] rolesNames = { "Administrator", "Common" };
 
             foreach (var role in rolesNames)
             {

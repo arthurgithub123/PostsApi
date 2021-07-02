@@ -57,7 +57,7 @@ namespace PostsApi.Services.Implementations
                 post.IsCreatedByAdmin = true;
             }
             
-            if(userRole == "Commom")
+            if(userRole == "Common")
             {
                 post.IsCreatedByAdmin = false;
             }
@@ -138,7 +138,7 @@ namespace PostsApi.Services.Implementations
                     }
                 }
 
-                if (userRole == "Commom")
+                if (userRole == "Common")
                 {
                     if (filter == "accepted")
                     {
@@ -172,7 +172,7 @@ namespace PostsApi.Services.Implementations
                             .OrderByDescending(post => post.CreatedAt);
                     }
 
-                    if (filter == "onlyCommomUsersPosts")
+                    if (filter == "onlyCommonUsersPosts")
                     {
                         posts = posts
                             .Where(post =>
@@ -217,7 +217,7 @@ namespace PostsApi.Services.Implementations
                 throw new HttpResponseException(400, "Post inexistente");
             }
 
-            if(userRole == "Commom")
+            if(userRole == "Common")
             {
                 if (post.CreatorId != userId)
                 {

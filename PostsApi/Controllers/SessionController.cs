@@ -32,10 +32,10 @@ namespace PostsApi.Controllers
             });
         }
 
-        [HttpPost("Commom/Create")]
-        public async Task<ActionResult<UserToken>> CreateCommom([FromForm] UserCreateViewModel userCreateViewModel)
+        [HttpPost("Common/Create")]
+        public async Task<ActionResult<UserToken>> CreateCommon([FromForm] UserCreateViewModel userCreateViewModel)
         {
-            UserToken userToken = await _sessionService.CreateCommom(userCreateViewModel, ModelState.IsValid);
+            UserToken userToken = await _sessionService.CreateCommon(userCreateViewModel, ModelState.IsValid);
 
             return StatusCode(StatusCodes.Status201Created, userToken);
         }
