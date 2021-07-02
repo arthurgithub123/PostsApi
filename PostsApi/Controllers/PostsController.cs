@@ -13,7 +13,7 @@ using System.Linq;
 namespace PostsApi.Controllers
 {
     [Authorize(Roles = "Administrator, Common")]
-    [Route("api/Posts")]
+    [Route("api/posts")]
     [ApiController]
     public class PostsController : Controller
     {
@@ -48,7 +48,7 @@ namespace PostsApi.Controllers
         }
 
         [Authorize(Roles = "Administrator")]
-        [HttpPut("Accept/{id}")]
+        [HttpPut("accept/{id}")]
         public IActionResult Accept(Guid id)
         {
             _postService.Accept(id, ApplicationUser.Id);
@@ -60,7 +60,7 @@ namespace PostsApi.Controllers
             });
         }
 
-        [HttpGet("List/{filter}")]
+        [HttpGet("list/{filter}")]
         public IActionResult List(string filter, [FromQuery] PaginationQueryParams paginationQueryParams)
         {
             string userRole = _userManager.GetRolesAsync(ApplicationUser).Result[0];
@@ -79,8 +79,8 @@ namespace PostsApi.Controllers
 
             return Ok(paginationResponse);
         }
-
-        [HttpGet("ListById/{id}")]
+        
+        [HttpGet("list_by_id/{id}")]
         public IActionResult ListById(Guid id)
         {
             string userRole = _userManager.GetRolesAsync(ApplicationUser).Result[0];
@@ -90,7 +90,7 @@ namespace PostsApi.Controllers
             return Ok(postViewModel);
         }
 
-        [HttpPut("Edit/{id}")]
+        [HttpPut("edit/{id}")]
         public IActionResult Edit(Guid id, [FromForm] PostViewModel postViewModel)
         {
             string userRole = _userManager.GetRolesAsync(ApplicationUser).Result[0];

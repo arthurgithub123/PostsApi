@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace PostsApi.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/session")]
     [ApiController]
     public class SessionController : ControllerBase
     {
@@ -20,7 +20,7 @@ namespace PostsApi.Controllers
         private readonly ISessionService _sessionService;
         
         [Authorize(Roles = "Administrator")]
-        [HttpPost("Administrator/Create")]
+        [HttpPost("administrator")]
         public async Task<ActionResult> CreateAdministrator(AdminCreateViewModel adminCreateViewModel)
         {
             await _sessionService.CreateAdministrator(adminCreateViewModel, ModelState.IsValid);
@@ -31,8 +31,8 @@ namespace PostsApi.Controllers
                 Message = "Administrador cadastrado com sucesso"
             });
         }
-
-        [HttpPost("Common/Create")]
+        
+        [HttpPost("common")]
         public async Task<ActionResult<UserToken>> CreateCommon([FromForm] UserCreateViewModel userCreateViewModel)
         {
             UserToken userToken = await _sessionService.CreateCommon(userCreateViewModel, ModelState.IsValid);
@@ -40,7 +40,7 @@ namespace PostsApi.Controllers
             return StatusCode(StatusCodes.Status201Created, userToken);
         }
 
-        [HttpPost("Password/Create")]
+        [HttpPost("password")]
         public async Task<IActionResult> CreatePassword(PasswordCreateViewModel passwordCreateViewModel)
         {
             await _sessionService.CreatePassword(passwordCreateViewModel, ModelState.IsValid);
@@ -52,7 +52,7 @@ namespace PostsApi.Controllers
             });
         }
 
-        [HttpGet("Password/Forgot/{email}")]
+        [HttpGet("password/forgot/{email}")]
         public async Task<IActionResult> ForgotPassword(string email)
         {
             await _sessionService.ForgotPassword(email);
@@ -64,8 +64,8 @@ namespace PostsApi.Controllers
             });
         }
 
-        [HttpPost("Password/Change")]
-        public async Task <IActionResult> ChangePassword(PasswordChangeViewModel passwordChangeViewModel)
+        [HttpPost("password/change")]
+        public async Task<IActionResult> ChangePassword(PasswordChangeViewModel passwordChangeViewModel)
         {
             await _sessionService.ChangePassword(passwordChangeViewModel, this.User);
 
@@ -76,7 +76,7 @@ namespace PostsApi.Controllers
             });
         }
 
-        [HttpPost("Login")]
+        [HttpPost("login")]
         public async Task<ActionResult<UserToken>> Login(UserLoginViewModel userLoginViewModel)
         {
             UserToken userToken = await _sessionService.Login(userLoginViewModel, ModelState.IsValid);
