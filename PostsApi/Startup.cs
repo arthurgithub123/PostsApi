@@ -50,9 +50,9 @@ namespace PostsApi
                 .AddJwtBearer(option =>
                 {
                     option.RequireHttpsMetadata = false;
-                                // stores the bearer token in HTTP Context
-                                // so the token can be accessed in the controller when needed
-                                option.SaveToken = true;
+                    // stores the bearer token in HTTP Context
+                    // so the token can be accessed in the controller when needed
+                    option.SaveToken = true;
                     option.TokenValidationParameters = new TokenValidationParameters
                     {
                         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["Jwt:Key"])),
