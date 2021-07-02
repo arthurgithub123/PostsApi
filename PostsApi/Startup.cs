@@ -9,7 +9,7 @@ using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using PostsApi.Context;
-using PostsApi.ErrorHandling;
+using PostsApi.GlobalErrorHandling;
 using PostsApi.Models.Entities.Identity;
 using PostsApi.Repositories.Generic;
 using PostsApi.Services.Implementations;

@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
-using PostsApi.ErrorHandling;
+using PostsApi.GlobalErrorHandling;
 using PostsApi.Models.Email;
 using PostsApi.Models.Entities.Identity;
 using PostsApi.Models.Token;

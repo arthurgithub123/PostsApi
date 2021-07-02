@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace PostsApi.ErrorHandling
+namespace PostsApi.GlobalErrorHandling
 {
     public class HttpResponseException : Exception
     {

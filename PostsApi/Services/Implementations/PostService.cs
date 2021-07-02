@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using PostsApi.ErrorHandling;
+using PostsApi.GlobalErrorHandling;
 using PostsApi.Models.Entities;
 using PostsApi.Models.Pagination;
 using PostsApi.Models.ViewModels;

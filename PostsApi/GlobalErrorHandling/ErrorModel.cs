@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace PostsApi.ErrorHandling
+namespace PostsApi.GlobalErrorHandling
 {
     public class ErrorModel
     {
