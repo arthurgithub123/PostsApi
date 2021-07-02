@@ -64,6 +64,18 @@ namespace PostsApi.Controllers
             });
         }
 
+        [HttpPost("Password/Change")]
+        public async Task <IActionResult> ChangePassword(PasswordChangeViewModel passwordChangeViewModel)
+        {
+            await _sessionService.ChangePassword(passwordChangeViewModel, this.User);
+
+            return Ok(new
+            {
+                StatusCode = 200,
+                Message = "Senha alterada com sucesso"
+            });
+        }
+
         [HttpPost("Login")]
         public async Task<ActionResult<UserToken>> Login(UserLoginViewModel userLoginViewModel)
         {

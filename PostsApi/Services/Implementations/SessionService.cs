@@ -8,6 +8,7 @@ using PostsApi.Models.ViewModels.User;
 using PostsApi.Services.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace PostsApi.Services.Implementations
@@ -163,6 +164,23 @@ namespace PostsApi.Services.Implementations
             }
 
             await GeneratePasswordResetTokenAndEmail(applicationUser);
+        }
+
+        public async Task ChangePassword(PasswordChangeViewModel passwordChangeViewModel, ClaimsPrincipal user)
+        {
+            ApplicationUser applicationUser = await _userManager.GetUserAsync(user);
+            
+            if(applicationUser == null)
+            {
+                throw new HttpResponseException(400, "Usuário inválido. Entre na sua conta para realizar a alteração");
+            }
+
+            var changePasswordResult = await _userManager.ChangePasswordAsync(applicationUser, passwordChangeViewModel.CurrentPassword, passwordChangeViewModel.NewPassword);
+            
+            if (!changePasswordResult.Succeeded)
+            {
+                throw new HttpResponseException(400, "Informe a senha atual e a nova corretamente de acordo com as regras para a criação de senha");
+            }
         }
 
         public async Task<UserToken> Login(UserLoginViewModel userLoginViewModel, bool isModelStateValid)
