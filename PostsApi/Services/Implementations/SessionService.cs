@@ -3,7 +3,7 @@ using Microsoft.Extensions.Configuration;
 using PostsApi.GlobalErrorHandling;
 using PostsApi.Models.Email;
 using PostsApi.Models.Entities.Identity;
-using PostsApi.Models.Token;
+using PostsApi.Models.JsonWebToken;
 using PostsApi.Models.ViewModels.User;
 using PostsApi.Services.Interfaces;
 using System;

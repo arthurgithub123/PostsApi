@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace PostsApi.Models.Token
+namespace PostsApi.Models.JsonWebToken
 {
     public class UserInfo
     {

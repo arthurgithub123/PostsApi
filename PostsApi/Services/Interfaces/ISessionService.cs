@@ -1,4 +1,4 @@
-﻿using PostsApi.Models.Token;
+﻿using PostsApi.Models.JsonWebToken;
 using PostsApi.Models.ViewModels.User;
 using System.Security.Claims;
 using System.Threading.Tasks;

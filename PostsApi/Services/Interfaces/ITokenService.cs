@@ -1,5 +1,5 @@
 ﻿using PostsApi.Models.Entities.Identity;
-using PostsApi.Models.Token;
+using PostsApi.Models.JsonWebToken;
 
 namespace PostsApi.Services.Interfaces
 {

@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using PostsApi.Models.Token;
+using PostsApi.Models.JsonWebToken;
 using PostsApi.Models.ViewModels.User;
 using PostsApi.Services.Interfaces;
 using System.Threading.Tasks;
