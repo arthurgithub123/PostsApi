@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 
 namespace PostsApi.Controllers
 {
+    [ApiVersion("1")]
     [Route("api/session")]
     [ApiController]
     public class SessionController : ControllerBase
