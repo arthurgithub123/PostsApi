@@ -35,11 +35,11 @@ namespace PostsApi.Controllers
         }
 
         [HttpPost("")]
-        public IActionResult CreateOrRecommend([FromForm] PostViewModel postViewModel)
+        public IActionResult CreateOrRecommend([FromForm] PostCreateViewModel postCreateViewModel)
         {
             string userRole = _userManager.GetRolesAsync(ApplicationUser).Result[0];
 
-            _postService.CreateOrRecommend(ApplicationUser.Id, userRole, postViewModel);
+            _postService.CreateOrRecommend(ApplicationUser.Id, userRole, postCreateViewModel);
 
             return StatusCode(StatusCodes.Status201Created, new
             {

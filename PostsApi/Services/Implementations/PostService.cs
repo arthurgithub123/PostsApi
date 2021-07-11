@@ -23,17 +23,17 @@ namespace PostsApi.Services.Implementations
         private readonly IGenericRepository<Post> _postRepository;
         private readonly IWebHostEnvironment _webHostEnvironment;
 
-        public void CreateOrRecommend(Guid userId, string userRole, PostViewModel postViewModel)
+        public void CreateOrRecommend(Guid userId, string userRole, PostCreateViewModel postCreateViewModel)
         {
-            if(postViewModel == null)
+            if(postCreateViewModel == null)
             {
                 throw new HttpResponseException(400, "Objeto post não pode ser nulo");
             }
             
             if(
-                String.IsNullOrEmpty(postViewModel.Description) && 
+                String.IsNullOrEmpty(postCreateViewModel.Description) && 
                 (
-                 postViewModel.Image == null || (postViewModel.Image != null && postViewModel.Image.Length == 0)
+                 postCreateViewModel.Image == null || (postCreateViewModel.Image != null && postCreateViewModel.Image.Length == 0)
                 )
             )
             {
@@ -42,11 +42,11 @@ namespace PostsApi.Services.Implementations
 
             Post post = new Post();
 
-            post.Description = postViewModel.Description;
+            post.Description = postCreateViewModel.Description;
 
-            if (postViewModel.Image != null && postViewModel.Image.Length > 0)
+            if (postCreateViewModel.Image != null && postCreateViewModel.Image.Length > 0)
             {
-                post.ImageName = SaveImage(postViewModel.Image);
+                post.ImageName = SaveImage(postCreateViewModel.Image);
             }
             
             post.CreatedAt = DateTime.UtcNow;
@@ -217,12 +217,9 @@ namespace PostsApi.Services.Implementations
                 throw new HttpResponseException(400, "Post inexistente");
             }
 
-            if(userRole == "Common")
+            if (post.CreatorId != userId)
             {
-                if (post.CreatorId != userId)
-                {
-                    throw new HttpResponseException(400, "Não é possível alterar posts de outra pessoa");
-                }
+                throw new HttpResponseException(400, "Não é possível alterar posts de outra pessoa");
             }
 
             return new PostViewModel
