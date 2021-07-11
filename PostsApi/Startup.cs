@@ -9,9 +9,11 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using PostsApi.Context;
 using PostsApi.GlobalErrorHandling;
 using PostsApi.Models.Entities.Identity;
+using PostsApi.Models.SwaggerCustomFilter;
 using PostsApi.Repositories.Generic;
 using PostsApi.Services.Implementations;
 using PostsApi.Services.Interfaces;
@@ -78,6 +80,44 @@ namespace PostsApi
                 options.DefaultApiVersion = new ApiVersion(1, 0);
                 options.AssumeDefaultVersionWhenUnspecified = true;
             });
+
+            services.AddSwaggerGen(options =>
+            {
+                options.SwaggerDoc("v1", new OpenApiInfo
+                {
+                    Version = "v1",
+                    Title = "Posts API",
+                    Description = "Documentation for Posts API",
+                    Contact = new OpenApiContact
+                    {
+                        Name = "Arthur",
+                        Email = "api_contact@gmail.com"
+                    }
+                });
+
+                options.OperationFilter<CustomOperationFilter>();
+
+                options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+                {
+                    Name = "bearerAuth",
+                    Description = "Insira o token JWT",
+                    Type = SecuritySchemeType.Http,
+                    BearerFormat = "JWT",
+                    In = ParameterLocation.Header,
+                    Scheme = "bearer"
+                });
+
+                // Rename classes names shown in documentation page
+                options.CustomSchemaIds(currentClass => {
+                    string currentClassName = currentClass.Name;
+
+                    currentClassName = currentClassName
+                        .Replace("UserLogin", "Login")
+                        .Replace("ViewModel", "");
+
+                    return currentClassName;
+                });
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -91,6 +131,13 @@ namespace PostsApi
             app.UseMiddleware<CustomExceptionMiddleware>();
 
             app.UseHttpsRedirection();
+
+            app.UseSwagger();
+
+            app.UseSwaggerUI(options =>
+            {
+                options.SwaggerEndpoint("/swagger/v1/swagger.json", "Posts API Version 1");
+            });
 
             app.UseRouting();
 
