@@ -13,6 +13,7 @@ using System.Linq;
 namespace PostsApi.Controllers
 {
     [ApiVersion("1")]
+    [Produces("application/json")]
     [Authorize(Roles = "Administrator, Common")]
     [Route("api/posts")]
     [ApiController]
