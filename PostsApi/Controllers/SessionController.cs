@@ -22,7 +22,7 @@ namespace PostsApi.Controllers
         
         [Authorize(Roles = "Administrator")]
         [HttpPost("administrator")]
-        public async Task<ActionResult> CreateAdministrator(AdminCreateViewModel adminCreateViewModel)
+        public async Task<ActionResult> CreateAdministrator([FromForm] AdminCreateViewModel adminCreateViewModel)
         {
             await _sessionService.CreateAdministrator(adminCreateViewModel, ModelState.IsValid);
 
