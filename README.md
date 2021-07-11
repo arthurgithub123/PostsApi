@@ -18,7 +18,7 @@ Posts de usuários comuns devem ser aceitos por usuários administradores.
 - [x] Adicionar usuários admins
 - [x] Envio de token por e-mail para um novo admin criar sua senha
 - [x] Envio de token por e-mail para alteração de senha
-- [ ] Versionamento da API
+- [x] Versionamento da API
 - [ ] Documentação com Swagger
 
 ### Patterns
