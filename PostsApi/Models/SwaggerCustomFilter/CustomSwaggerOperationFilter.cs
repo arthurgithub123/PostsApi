@@ -129,6 +129,12 @@ namespace PostsApi.Models.SwaggerCustomFilter
             {
                 operation.Summary = "Edit post by id";
 
+                operation.Description =
+                    "<p>Mesmo se Post já possuir uma imagem e somente a descrição for alterada, a mesma imagem deve ser enviada na requisição</p>" +
+                    "<p>Se nenhuma imagem for enviada e o Post já possuir uma, então ela será excluída</p>" +
+                    "<p>Ao fazer uma requisição sem ser por essa página, a imagem pode ser recuperada pelo endpoint api/posts/list_by_id/{id}</p>" +
+                    "<p>A imagem é recuperada no formato base64 e deve ser convertida para um array de bytes antes de ser enviada</p>";
+
                 operation.Responses["200"].Description = "Se o Post for alterado com sucesso";
                 AddResponseAndExample(operation, 400, "application/json", "Se o Post for nulo ou se o usuário não for o autor do post ou se o post não possuir descrição e imagem", "Não é possível alterar posts de outra pessoa");
             }
