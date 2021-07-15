@@ -87,9 +87,9 @@ namespace PostsApi.Controllers
         {
             string userRole = _userManager.GetRolesAsync(ApplicationUser).Result[0];
 
-            PostViewModel postViewModel = _postService.GetById(id, ApplicationUser.Id, userRole, Request.Host.ToString(), Request.PathBase);
+            PostGetViewModel postGetViewModel = _postService.GetById(id, ApplicationUser.Id, userRole, Request.Host.ToString(), Request.PathBase);
             
-            return Ok(postViewModel);
+            return Ok(postGetViewModel);
         }
 
         [HttpPut("edit/{id}")]

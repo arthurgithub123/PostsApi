@@ -208,7 +208,7 @@ namespace PostsApi.Services.Implementations
             return paginationResponse;
         }
 
-        public PostViewModel GetById(Guid id, Guid userId, string userRole, string requestHost, string requestPathBase)
+        public PostGetViewModel GetById(Guid id, Guid userId, string userRole, string requestHost, string requestPathBase)
         {
             Post post = _postRepository.GetById(id);
 
@@ -222,16 +222,35 @@ namespace PostsApi.Services.Implementations
                 throw new HttpResponseException(400, "Não é possível alterar posts de outra pessoa");
             }
 
-            return new PostViewModel
+            IFormFile image;
+            string base64image = "";
+
+            if(!string.IsNullOrEmpty(post.ImageName))
+            {
+                string folderPathAndImageFileName = Path.Combine(_webHostEnvironment.ContentRootPath, "Assets", "Posts", "Images", post.ImageName);
+
+                using (FileStream fileStream = new FileStream(folderPathAndImageFileName, FileMode.Open))
+                using (MemoryStream memoryStream = new MemoryStream())
+                {
+                    image = new FormFile(fileStream, 0, fileStream.Length, null, Path.GetFileName(fileStream.Name));
+                    image.CopyTo(memoryStream);
+                    byte[] fileBytes = memoryStream.ToArray();
+                    base64image = Convert.ToBase64String(fileBytes);
+                }
+            }
+            
+            return new PostGetViewModel
             {
                 Id = post.Id,
                 Description = !String.IsNullOrEmpty(post.Description)
                     ? post.Description
                     : null,
                 CreatedAt = post.CreatedAt,
+                Image = !string.IsNullOrEmpty(base64image) ? base64image : null,
                 ImageUrl = !String.IsNullOrEmpty(post.ImageName)
                     ? "https://" + requestHost + requestPathBase + "/Assets/Posts/Images/" + post.ImageName
-                    : null
+                    : null,
+                ImageName = post.ImageName
             };
         }
 
