@@ -282,7 +282,8 @@ namespace PostsApi.Services.Implementations
 
             if (string.IsNullOrEmpty(post.ImageName) && (postViewModel.Image != null && postViewModel.Image.Length > 0))
             {
-                SaveImage(postViewModel.Image);
+                string imageFileName = SaveImage(postViewModel.Image);
+                post.ImageName = imageFileName;
             }
             
             if (!string.IsNullOrEmpty(post.ImageName) && (postViewModel.Image != null && postViewModel.Image.Length > 0))
@@ -302,15 +303,18 @@ namespace PostsApi.Services.Implementations
 
                 if (!equalFiles)
                 {
-                    DeleteCurrentImageAndSaveNew(postViewModel.Image, post.ImageName);
+                    string imageFileName = DeleteCurrentImageAndSaveNew(postViewModel.Image, post.ImageName);
+                    post.ImageName = imageFileName;
                 }
             }
 
-            if (!string.IsNullOrEmpty(post.ImageName) && postViewModel.Image == null)
+            if (!string.IsNullOrEmpty(post.ImageName) && postViewModel.Image == null || (postViewModel.Image != null && postViewModel.Image.Length == 0))
             {
                 string fileFolderPath = Path.Combine(_webHostEnvironment.ContentRootPath, "Assets", "Posts", "Images", post.ImageName);
                 
                 System.IO.File.Delete(fileFolderPath);
+
+                post.ImageName = "";
             }
             
             post.EditorId = userId;
