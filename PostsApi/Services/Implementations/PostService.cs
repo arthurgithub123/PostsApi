@@ -269,7 +269,10 @@ namespace PostsApi.Services.Implementations
             }
 
             if (String.IsNullOrEmpty(postViewModel.Description) &&
-                String.IsNullOrEmpty(postViewModel.ImageUrl)
+                (
+                    postViewModel.Image == null ||
+                    (postViewModel.Image != null && postViewModel.Image.Length == 0)
+                )
             )
             {
                 throw new HttpResponseException(400, "Preencha, pelo menos, a descrição ou a imagem");
@@ -277,31 +280,39 @@ namespace PostsApi.Services.Implementations
 
             post.Description = postViewModel.Description;
 
-            if (!String.IsNullOrEmpty(postViewModel.ImageUrl) &&
-                postViewModel.ImageUrl != "notChanged"
-            )
+            if (string.IsNullOrEmpty(post.ImageName) && (postViewModel.Image != null && postViewModel.Image.Length > 0))
             {
-                if (!String.IsNullOrEmpty(post.ImageName))
+                SaveImage(postViewModel.Image);
+            }
+            
+            if (!string.IsNullOrEmpty(post.ImageName) && (postViewModel.Image != null && postViewModel.Image.Length > 0))
+            {
+                string folderPathAndImageFileName = Path.Combine(_webHostEnvironment.ContentRootPath, "Assets", "Posts", "Images", post.ImageName);
+
+                byte[] currentPostImageBytes = File.ReadAllBytes(folderPathAndImageFileName);
+
+                byte[] addedPostImageBytes = new byte[postViewModel.Image.Length];
+                
+                using(Stream fileStream = postViewModel.Image.OpenReadStream())
                 {
-                    post.ImageName = DeleteCurrentImageAndSaveNew(postViewModel.Image, post.ImageName);
+                    fileStream.Read(addedPostImageBytes, 0, (int) postViewModel.Image.Length);
                 }
-                else
+                
+                bool equalFiles = FileCompare(currentPostImageBytes, addedPostImageBytes);
+
+                if (!equalFiles)
                 {
-                    post.ImageName = SaveImage(postViewModel.Image);
+                    DeleteCurrentImageAndSaveNew(postViewModel.Image, post.ImageName);
                 }
             }
 
-            if (String.IsNullOrEmpty(postViewModel.ImageUrl) &&
-                !String.IsNullOrEmpty(post.ImageName)
-            )
+            if (!string.IsNullOrEmpty(post.ImageName) && postViewModel.Image == null)
             {
-                string fileFolderPath = Path.Combine(_webHostEnvironment.ContentRootPath, "Assets", "Posts", "Images");
-
-                System.IO.File.Delete(Path.Combine(fileFolderPath, post.ImageName));
-
-                post.ImageName = null;
+                string fileFolderPath = Path.Combine(_webHostEnvironment.ContentRootPath, "Assets", "Posts", "Images", post.ImageName);
+                
+                System.IO.File.Delete(fileFolderPath);
             }
-
+            
             post.EditorId = userId;
             post.EditedAt = DateTime.UtcNow;
 
@@ -340,6 +351,27 @@ namespace PostsApi.Services.Implementations
             }
 
             return imageFileName;
+        }
+    
+        private bool FileCompare(byte[] currentPostImageFileBytes, byte[] addedPostImageFileBytes)
+        {
+            if (currentPostImageFileBytes.Length != addedPostImageFileBytes.Length)
+            {
+                return false;
+            }
+            
+            int i;
+            for(i=0; i < currentPostImageFileBytes.Length; i++)
+            {
+                if(currentPostImageFileBytes[i] != addedPostImageFileBytes[i])
+                {
+                    return false;
+                }
+            }
+            
+            i--;
+
+            return ((currentPostImageFileBytes[i] - addedPostImageFileBytes[i]) == 0);
         }
     }
 }
