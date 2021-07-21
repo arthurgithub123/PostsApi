@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using System;
+using System.Collections.Generic;
 
 namespace PostsApi.Models.Entities.Identity
 {
@@ -14,5 +15,7 @@ namespace PostsApi.Models.Entities.Identity
         {
 
         }
+
+        public virtual ICollection<ApplicationUserRole> UserRoles { get; set; }
     }
 }

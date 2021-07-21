@@ -18,5 +18,7 @@ namespace PostsApi.Models.Entities.Identity
             return applicationUser.Avatar;
         }
         public virtual ICollection<Post> Posts { get; set; }
+
+        public virtual ICollection<ApplicationUserRole> UserRoles { get; set; }
     }
 }
