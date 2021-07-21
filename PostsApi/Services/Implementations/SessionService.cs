@@ -4,10 +4,12 @@ using PostsApi.GlobalErrorHandling;
 using PostsApi.Models.Email;
 using PostsApi.Models.Entities.Identity;
 using PostsApi.Models.JsonWebToken;
+using PostsApi.Models.Pagination;
 using PostsApi.Models.ViewModels.User;
 using PostsApi.Services.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 
@@ -29,7 +31,7 @@ namespace PostsApi.Services.Implementations
             _configuration = configuration;
             _userService = userService;
         }
-
+        
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly ITokenService _tokenService;
@@ -181,6 +183,46 @@ namespace PostsApi.Services.Implementations
             {
                 throw new HttpResponseException(400, "Informe a senha atual e a nova corretamente de acordo com as regras para a criação de senha");
             }
+        }
+
+        public PaginationResponse<UserViewModel> GetAll(Guid userId, string userRole, string filter, string requestHost, string requestPathBase, PaginationQueryParams paginationQueryParams, string paginationUrl)
+        {
+            if (String.IsNullOrEmpty(filter))
+            {
+                throw new HttpResponseException(400, "O filtro da pesquisa não pode estar vazio");
+            }
+
+            if(filter != "common" && filter != "administrator")
+            {
+                throw new HttpResponseException(400, "O filtro da pesquisa deve ser common ou administrator");
+            }
+            
+            if (filter == "common") filter = "Common";
+            else filter = "Administrator";
+
+            var totalRecords = _userManager.Users
+                .Where(user => user.UserRoles.First().Role.Name == filter && user.Id != userId)
+                .Count();
+
+            var users = _userManager.Users
+                .Where(user => user.UserRoles.First().Role.Name == filter && user.Id != userId)
+                .Skip((paginationQueryParams.Page - 1) * paginationQueryParams.Per_Page)
+                .Take(paginationQueryParams.Per_Page)
+                .Select(user => new UserViewModel
+                {
+                    Id = user.Id,
+                    Name = user.Name,
+                    Email = user.Email
+                });
+
+            PaginationResponse<UserViewModel> paginationResponse = PaginationHelper<UserViewModel>.CreateResponseWithPagination(
+                users,
+                totalRecords,
+                paginationQueryParams,
+                paginationUrl
+             );
+
+            return paginationResponse;
         }
 
         public async Task<UserToken> Login(UserLoginViewModel userLoginViewModel, bool isModelStateValid)

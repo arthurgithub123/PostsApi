@@ -1,9 +1,13 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using PostsApi.Models.Entities.Identity;
 using PostsApi.Models.JsonWebToken;
+using PostsApi.Models.Pagination;
 using PostsApi.Models.ViewModels.User;
 using PostsApi.Services.Interfaces;
+using System;
 using System.Threading.Tasks;
 
 namespace PostsApi.Controllers
@@ -13,13 +17,15 @@ namespace PostsApi.Controllers
     [ApiController]
     public class SessionController : ControllerBase
     {
-        public SessionController(ISessionService sessionService)
+        public SessionController(ISessionService sessionService, UserManager<ApplicationUser> userManager)
         {
             _sessionService = sessionService;
+            _userManager = userManager;
         }
         
         private readonly ISessionService _sessionService;
-        
+        private readonly UserManager<ApplicationUser> _userManager;
+
         [Authorize(Roles = "Administrator")]
         [HttpPost("administrator")]
         public async Task<ActionResult> CreateAdministrator([FromForm] AdminCreateViewModel adminCreateViewModel)
@@ -75,6 +81,27 @@ namespace PostsApi.Controllers
                 StatusCode = 200,
                 Message = "Senha alterada com sucesso"
             });
+        }
+
+        [Authorize(Roles = "Administrator")]
+        [HttpGet("list/{filter}")]
+        public IActionResult List(string filter, [FromQuery] PaginationQueryParams paginationQueryParams)
+        {
+            string paginationUrl = string.Concat(Request.Scheme, "://", Request.Host, Request.Path);
+
+            ApplicationUser user = _userManager.GetUserAsync(this.User).Result;
+            string role = _userManager.GetRolesAsync(user).Result[0];
+            
+            PaginationResponse<UserViewModel> paginationResponse = _sessionService.GetAll(
+                user.Id, 
+                role, 
+                filter, 
+                Request.Host.ToString(),
+                Request.PathBase,
+                paginationQueryParams,
+                paginationUrl);
+            
+            return Ok(paginationResponse);
         }
 
         [HttpPost("login")]
