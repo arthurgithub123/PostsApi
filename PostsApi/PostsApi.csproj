@@ -7,6 +7,8 @@
   <ItemGroup>
     <Compile Remove="Migrations\20210414043330_Change-Post-AcceptedUserId-property-type.cs" />
     <Compile Remove="Migrations\20210414043330_Change-Post-AcceptedUserId-property-type.Designer.cs" />
+    <Compile Remove="Migrations\20210721133359_add-role-navigation-property-to-user.cs" />
+    <Compile Remove="Migrations\20210721133359_add-role-navigation-property-to-user.Designer.cs" />
   </ItemGroup>
 
   <ItemGroup>
