@@ -225,6 +225,46 @@ namespace PostsApi.Services.Implementations
             return paginationResponse;
         }
 
+        public PaginationResponse<UserViewModel> Search(Guid userId, string filter, PaginationQueryParams paginationQueryParams, string paginationUrl)
+        {
+            if (String.IsNullOrEmpty(filter))
+            {
+                throw new HttpResponseException(400, "O filtro da pesquisa não pode estar vazio");
+            }
+
+            var totalRecords = _userManager.Users
+                .Where(user =>
+                    user.Name.ToLower().Contains(filter.ToLower()) ||
+                    user.Email.ToLower().Contains(filter.ToLower()) &&
+                    user.Id != userId
+                )
+                .Count();
+
+            var users = _userManager.Users
+                .Where(user =>
+                    user.Name.ToLower().Contains(filter.ToLower()) ||
+                    user.Email.ToLower().Contains(filter.ToLower()) &&
+                    user.Id != userId
+                )
+                .Skip((paginationQueryParams.Page - 1) * paginationQueryParams.Per_Page)
+                .Take(paginationQueryParams.Per_Page)
+                .Select(user => new UserViewModel
+                {
+                    Id = user.Id,
+                    Name = user.Name,
+                    Email = user.Email
+                });
+
+            PaginationResponse<UserViewModel> paginationResponse = PaginationHelper<UserViewModel>.CreateResponseWithPagination(
+                users,
+                totalRecords,
+                paginationQueryParams,
+                paginationUrl
+             );
+
+            return paginationResponse;
+        }
+
         public async Task TurnUserAdministrator(Guid userId)
         {
             ApplicationUser user = await _userManager.FindByIdAsync(userId.ToString());

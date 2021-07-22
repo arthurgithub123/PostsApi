@@ -101,6 +101,23 @@ namespace PostsApi.Controllers
         }
 
         [Authorize(Roles = "Administrator")]
+        [HttpGet("search/{filter}")]
+        public IActionResult Search(string filter, [FromQuery] PaginationQueryParams paginationQueryParams)
+        {
+            string paginationUrl = string.Concat(Request.Scheme, "://", Request.Host, Request.Path);
+
+            ApplicationUser user = _userManager.GetUserAsync(this.User).Result;
+            
+            PaginationResponse<UserViewModel> paginationResponse = _sessionService.Search(
+                user.Id,
+                filter,
+                paginationQueryParams,
+                paginationUrl);
+
+            return Ok(paginationResponse);
+        }
+
+        [Authorize(Roles = "Administrator")]
         [HttpPut("turn_administrator/{userId}")]
         public async Task<IActionResult> TurnUserAdministrator(Guid userId)
         {
