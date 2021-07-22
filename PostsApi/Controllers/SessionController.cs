@@ -104,6 +104,19 @@ namespace PostsApi.Controllers
             return Ok(paginationResponse);
         }
 
+        [Authorize(Roles = "Administrator")]
+        [HttpPut("turn_administrator/{userId}")]
+        public async Task<IActionResult> TurnUserAdministrator(Guid userId)
+        {
+            await _sessionService.TurnUserAdministrator(userId);
+            
+            return Ok(new
+            {
+                StatusCode = 200,
+                Message = "Usuário alterado para Administrador"
+            });
+        }
+
         [HttpPost("login")]
         public async Task<ActionResult<UserToken>> Login(UserLoginViewModel userLoginViewModel)
         {

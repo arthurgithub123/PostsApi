@@ -225,6 +225,19 @@ namespace PostsApi.Services.Implementations
             return paginationResponse;
         }
 
+        public async Task TurnUserAdministrator(Guid userId)
+        {
+            ApplicationUser user = await _userManager.FindByIdAsync(userId.ToString());
+
+            if(user == null)
+            {
+                throw new HttpResponseException(400, "Não há um administrator com esse id");
+            }
+            
+            await _userManager.AddToRoleAsync(user, "Administrator");
+            await _userManager.RemoveFromRoleAsync(user, "Common");
+        }
+
         public async Task<UserToken> Login(UserLoginViewModel userLoginViewModel, bool isModelStateValid)
         {
             if (!isModelStateValid)
