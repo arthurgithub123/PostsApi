@@ -90,14 +90,10 @@ namespace PostsApi.Controllers
             string paginationUrl = string.Concat(Request.Scheme, "://", Request.Host, Request.Path);
 
             ApplicationUser user = _userManager.GetUserAsync(this.User).Result;
-            string role = _userManager.GetRolesAsync(user).Result[0];
             
             PaginationResponse<UserViewModel> paginationResponse = _sessionService.GetAll(
-                user.Id, 
-                role, 
+                user.Id,  
                 filter, 
-                Request.Host.ToString(),
-                Request.PathBase,
                 paginationQueryParams,
                 paginationUrl);
             

@@ -185,7 +185,7 @@ namespace PostsApi.Services.Implementations
             }
         }
 
-        public PaginationResponse<UserViewModel> GetAll(Guid userId, string userRole, string filter, string requestHost, string requestPathBase, PaginationQueryParams paginationQueryParams, string paginationUrl)
+        public PaginationResponse<UserViewModel> GetAll(Guid userId, string filter, PaginationQueryParams paginationQueryParams, string paginationUrl)
         {
             if (String.IsNullOrEmpty(filter))
             {

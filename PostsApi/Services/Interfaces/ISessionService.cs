@@ -14,7 +14,7 @@ namespace PostsApi.Services.Interfaces
         public Task CreatePassword(PasswordCreateViewModel passwordCreateViewModel, bool isModelStateValid);
         public Task ForgotPassword(string email);
         public Task ChangePassword(PasswordChangeViewModel passwordChangeViewModel, ClaimsPrincipal user);
-        public PaginationResponse<UserViewModel> GetAll(Guid userId, string userRole, string filter, string requestHost, string requestPathBase, PaginationQueryParams paginationQueryParams, string paginationUrl);
+        public PaginationResponse<UserViewModel> GetAll(Guid userId, string filter, PaginationQueryParams paginationQueryParams, string paginationUrl);
         public Task TurnUserAdministrator(Guid userId);
         public Task<UserToken> Login(UserLoginViewModel userLoginViewModel, bool isModelStateValid);
     }
