@@ -20,6 +20,10 @@ Posts de usuários comuns devem ser aceitos por usuários administradores.
 - [x] Envio de token por e-mail para alteração de senha
 - [x] Versionamento da API
 - [x] Documentação com Swagger
+- [] Testes Unitários para PostService
+- [] Testes Unitários para SessionService
+- [] Testes Unitários para TokenService
+- [] Testes Unitários para UserService
 
 ### Patterns
 
