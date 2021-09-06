@@ -68,6 +68,12 @@ namespace PostsApi.Services.Implementations
         public void Accept(Guid id, Guid userId)
         {
             Post post = _postRepository.GetById(id);
+
+            if(post == null)
+            {
+                throw new HttpResponseException(400, "O Id do Post está incorreto");
+            }
+
             post.AcceptedUserId = userId;
             post.AcceptedAt = DateTime.UtcNow;
 
