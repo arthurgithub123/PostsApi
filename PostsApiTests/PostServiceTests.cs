@@ -1,6 +1,5 @@
 using PostsApi.Models.ViewModels;
 using Moq;
-using PostsApi.Services.Interfaces;
 using System;
 using Xunit;
 using PostsApi.GlobalErrorHandling;
@@ -11,11 +10,31 @@ using PostsApi.Models.Entities;
 using PostsApi.Repositories.Generic;
 using PostsApi.Services.Implementations;
 using PostsApi.Models.Pagination;
+using Microsoft.AspNetCore.Hosting;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace PostsApiTests
 {
     public class PostServiceTests
     {
+        public PostServiceTests()
+        {
+            webHostEnvironment = new Mock<IWebHostEnvironment>();
+            webHostEnvironment.SetupProperty(property =>
+                property.ContentRootPath,
+                "C:\\Users\\arthu\\source\\repos\\PostsApi\\PostsApi"
+            );
+
+            postRepository = new Mock<IGenericRepository<Post>>();
+
+            postService = new PostService(postRepository.Object, webHostEnvironment.Object);
+        }
+
+        private readonly Mock<IWebHostEnvironment> webHostEnvironment;
+        private readonly Mock<IGenericRepository<Post>> postRepository;
+        private readonly PostService postService;
+
         #region CreateOrRecommend Method Tests
         #region Exceptions Tests
         [Fact]
@@ -23,13 +42,8 @@ namespace PostsApiTests
         {
             var httpResponseException = new HttpResponseException(400, "Objeto post não pode ser nulo");
 
-            var postService = new Mock<IPostService>();
-            postService
-                    .Setup(setup => setup.CreateOrRecommend(It.IsAny<Guid>(), It.IsAny<string>(), null))
-                    .Throws(httpResponseException);
-
             Assert.Throws<HttpResponseException>(() =>
-                postService.Object.CreateOrRecommend(Guid.NewGuid(), "some role", null)
+                postService.CreateOrRecommend(Guid.NewGuid(), "some role", null)
             );
         }
 
@@ -40,20 +54,8 @@ namespace PostsApiTests
             
             var httpResponseException = new HttpResponseException(400, "Preencha, pelo menos, a descrição ou a imagem");
 
-            var postService = new Mock<IPostService>();
-            postService
-                .Setup(setup => setup.CreateOrRecommend(
-                    It.IsAny<Guid>(),
-                    It.IsAny<string>(),
-                    It.Is<PostCreateViewModel>(postCreateViewModelObject =>
-                        postCreateViewModelObject.Description == null &&
-                        postCreateViewModelObject.Image == null
-                    ))
-                )
-                .Throws(httpResponseException);
-
             Assert.Throws<HttpResponseException>(() =>
-                postService.Object.CreateOrRecommend(Guid.NewGuid(), "some role", postCreateViewModel)
+                postService.CreateOrRecommend(Guid.NewGuid(), "some role", postCreateViewModel)
             );
         }
 
@@ -63,22 +65,9 @@ namespace PostsApiTests
             var httpResponseException = new HttpResponseException(400, "Preencha, pelo menos, a descrição ou a imagem");
 
             var postCreateViewModel = new PostCreateViewModel { Description = "", Image = null };
-            
-            var postService = new Mock<IPostService>();
-            postService
-                .Setup(setup =>
-                    setup.CreateOrRecommend(
-                        It.IsAny<Guid>(),
-                        It.IsAny<string>(),
-                        It.Is<PostCreateViewModel>(postCreateViewModelSetup => 
-                            postCreateViewModelSetup.Description == "" &&
-                            postCreateViewModelSetup.Image == null
-                        )
-                    )
-                ).Throws(httpResponseException);
 
             Assert.Throws<HttpResponseException>(() =>
-                postService.Object.CreateOrRecommend(Guid.NewGuid(), "some role", postCreateViewModel)
+                postService.CreateOrRecommend(Guid.NewGuid(), "some role", postCreateViewModel)
             );
         }
 
@@ -93,20 +82,8 @@ namespace PostsApiTests
                 Image = new FormFile(new MemoryStream(Encoding.UTF8.GetBytes("lorem ipsum")), 0, 0, "Data", "image.png")
             };
 
-            var postService = new Mock<IPostService>();
-            postService
-                .Setup(setup => setup.CreateOrRecommend(
-                    It.IsAny<Guid>(), 
-                    It.IsAny<string>(), 
-                    It.Is<PostCreateViewModel>(postCreateViewModelSetup =>
-                        postCreateViewModelSetup.Description == "" &&
-                        (postCreateViewModelSetup.Image != null && postCreateViewModelSetup.Image.Length == 0)
-                    ))
-                )
-                .Throws(httpResponseException);
-
             Assert.Throws<HttpResponseException>(() =>
-                postService.Object.CreateOrRecommend(Guid.NewGuid(), "some role", postCreateViewModel)
+                postService.CreateOrRecommend(Guid.NewGuid(), "some role", postCreateViewModel)
             );
         }
 
@@ -121,20 +98,8 @@ namespace PostsApiTests
                 Image = new FormFile(new MemoryStream(Encoding.UTF8.GetBytes("lorem ipsum")), 0, 0, "Data", "image.png")
             };
 
-            var postService = new Mock<IPostService>();
-            postService
-                .Setup(setup => setup.CreateOrRecommend(
-                    It.IsAny<Guid>(),
-                    It.IsAny<string>(),
-                    It.Is<PostCreateViewModel>(postCreateViewModelSetup => 
-                        postCreateViewModelSetup.Description == null &&
-                        (postCreateViewModelSetup.Image != null && postCreateViewModelSetup.Image.Length == 0)
-                    ))
-                )
-                .Throws(httpResponseException);
-
             Assert.Throws<HttpResponseException>(() =>
-                postService.Object.CreateOrRecommend(Guid.NewGuid(), "some role", postCreateViewModel)
+                postService.CreateOrRecommend(Guid.NewGuid(), "some role", postCreateViewModel)
             );
         }
         #endregion
@@ -151,23 +116,8 @@ namespace PostsApiTests
 
             var httpResponseException = new HttpResponseException(400, "Preencha, pelo menos, a descrição ou a imagem");
 
-            var postService = new Mock<IPostService>();
-            postService
-                .Setup(setup => setup.CreateOrRecommend(
-                    It.IsAny<Guid>(),
-                    It.IsAny<string>(),
-                    It.Is<PostCreateViewModel>(postCreateViewModelSetup =>
-                        string.IsNullOrEmpty(postCreateViewModelSetup.Description) &&
-                        (
-                            postCreateViewModelSetup.Image == null ||
-                            (postCreateViewModelSetup.Image != null && postCreateViewModelSetup.Image.Length == 0)
-                        )
-                    ))
-                )
-                .Throws(httpResponseException);
-
             var createOrRecommendException = Record.Exception(() =>
-                postService.Object.CreateOrRecommend(Guid.NewGuid(), "some role", postCreateViewModel)
+                postService.CreateOrRecommend(Guid.NewGuid(), "some role", postCreateViewModel)
             );
 
             Assert.Null(createOrRecommendException);
@@ -184,25 +134,8 @@ namespace PostsApiTests
                 Image = null
             };
 
-            var postService = new Mock<IPostService>();
-            postService
-                .Setup(setup =>
-                    setup.CreateOrRecommend(
-                        It.IsAny<Guid>(),
-                        It.IsAny<string>(),
-                        It.Is<PostCreateViewModel>(postCreateViewModelSetup =>
-                            string.IsNullOrEmpty(postCreateViewModelSetup.Description) &&
-                            (
-                                postCreateViewModelSetup.Image == null ||
-                                (postCreateViewModelSetup.Image != null && postCreateViewModelSetup.Image.Length == 0)
-                            )
-                        )
-                    )
-                )
-                .Throws(httpResponseException);
-
             var createOrRecommendException = Record.Exception(() =>
-                postService.Object.CreateOrRecommend(Guid.NewGuid(), "some role", postCreateViewModel)
+                postService.CreateOrRecommend(Guid.NewGuid(), "some role", postCreateViewModel)
             );
 
             Assert.Null(createOrRecommendException);
@@ -219,24 +152,8 @@ namespace PostsApiTests
                 Image = new FormFile(new MemoryStream(Encoding.UTF8.GetBytes("lorem ipsum")), 0, 0, "Data", "image.png")
             };
 
-            var postService = new Mock<IPostService>();
-            postService
-                .Setup(setup =>
-                    setup.CreateOrRecommend(
-                        It.IsAny<Guid>(),
-                        It.IsAny<string>(),
-                        It.Is<PostCreateViewModel>(postCreateViewModelSetup =>
-                            string.IsNullOrEmpty(postCreateViewModelSetup.Description) &&
-                            (
-                                postCreateViewModelSetup.Image == null ||
-                                (postCreateViewModelSetup.Image != null && postCreateViewModelSetup.Image.Length == 0)
-                            )
-                    ))
-                )
-                .Throws(httpResponseException);
-
             var createOrRecommendException = Record.Exception(() =>
-                postService.Object.CreateOrRecommend(Guid.NewGuid(), "some role", postCreateViewModel)
+                postService.CreateOrRecommend(Guid.NewGuid(), "some role", postCreateViewModel)
             );
 
             Assert.Null(createOrRecommendException);
@@ -253,24 +170,8 @@ namespace PostsApiTests
                 Image = new FormFile(new MemoryStream(Encoding.UTF8.GetBytes("lorem ipsum")), 0, 100, "Data", "image.png")
             };
 
-            var postService = new Mock<IPostService>();
-            postService.Setup(setup =>
-                setup.CreateOrRecommend(
-                    It.IsAny<Guid>(), 
-                    It.IsAny<string>(),
-                    It.Is<PostCreateViewModel>(postCreateViewModelSetup =>
-                        string.IsNullOrEmpty(postCreateViewModelSetup.Description) &&
-                        (
-                            postCreateViewModelSetup.Image == null ||
-                            (postCreateViewModelSetup.Image != null && postCreateViewModelSetup.Image.Length == 0)
-                        )
-                    )
-                )
-            )
-            .Throws(httpResponseException);
-
             var createOrRecommendException = Record.Exception(() =>
-                postService.Object.CreateOrRecommend(Guid.NewGuid(), "some role", postCreateViewModel)
+                postService.CreateOrRecommend(Guid.NewGuid(), "some role", postCreateViewModel)
             );
 
             Assert.Null(createOrRecommendException);
@@ -287,24 +188,8 @@ namespace PostsApiTests
                 Image = new FormFile(new MemoryStream(Encoding.UTF8.GetBytes("lorem ipsum")), 0, 100, "Data", "image.png")
             };
 
-            var postService = new Mock<IPostService>();
-            postService.Setup(setup =>
-                setup.CreateOrRecommend(
-                    It.IsAny<Guid>(),
-                    It.IsAny<string>(),
-                    It.Is<PostCreateViewModel>(postCreateViewModelSetup =>
-                        string.IsNullOrEmpty(postCreateViewModelSetup.Description) &&
-                        (
-                            postCreateViewModelSetup.Image == null ||
-                            (postCreateViewModelSetup.Image != null && postCreateViewModelSetup.Image.Length == 0)
-                        )
-                    )
-                )
-            )
-            .Throws(httpResponseException);
-
             var createOrRecommendException = Record.Exception(() =>
-                postService.Object.CreateOrRecommend(Guid.NewGuid(), "some role", postCreateViewModel)
+                postService.CreateOrRecommend(Guid.NewGuid(), "some role", postCreateViewModel)
             );
 
             Assert.Null(createOrRecommendException);
@@ -322,18 +207,6 @@ namespace PostsApiTests
 
             var userId = Guid.NewGuid();
 
-            var postRepository = new Mock<IGenericRepository<Post>>();
-            postRepository
-                .Setup(setup => setup.GetById(It.IsAny<Guid>()))
-                .Callback<Guid>(passedInPostIdToGetById => passedInPostId = passedInPostIdToGetById)
-                .Returns(() => {
-                    return passedInPostId == invalidPostId
-                        ? null
-                        : new Post();
-                });
-
-            var postService = new PostService(postRepository.Object, null);
-
             Assert.Throws<HttpResponseException>(() =>
                 postService.Accept(invalidPostId, userId)
             );
@@ -344,25 +217,69 @@ namespace PostsApiTests
         [Fact]
         public void Accept_WithExistingPostIdInDatabase_ReturnsNothing()
         {
-            Guid invalidPostId = Guid.NewGuid();
-            Guid validPostId = Guid.NewGuid();
-            Guid passedInPostId = Guid.Empty;
+            List<Post> posts = new List<Post>();
+            Guid postId = Guid.Empty;
+            Guid userId = Guid.NewGuid();
+            Post fetchedPost = null;
 
-            var userId = Guid.NewGuid();
+            var webHostEnvironment = new Mock<IWebHostEnvironment>();
+            webHostEnvironment.SetupProperty(property =>
+                property.ContentRootPath,
+                "C:\\Users\\arthu\\source\\repos\\PostsApi\\PostsApi"
+            );
 
             var postRepository = new Mock<IGenericRepository<Post>>();
             postRepository
-                .Setup(setup => setup.GetById(It.IsAny<Guid>()))
-                .Callback<Guid>(passedInPostIdToGetById => passedInPostId = passedInPostIdToGetById)
-                .Returns(() => {
-                    return passedInPostId == invalidPostId
-                        ? null
-                        : new Post();
+                .Setup(property =>
+                    property.Create(It.IsAny<Post>())
+                )
+                .Callback<Post>(passedInPost =>
+                {
+                    passedInPost.Id = Guid.NewGuid();
+                    passedInPost.IsCreatedByAdmin = false;
+
+                    postId = passedInPost.Id;
+
+                    posts.Add(passedInPost);
                 });
 
-            var postService = new PostService(postRepository.Object, null);
+            postRepository
+                .Setup(property =>
+                    property.GetById(It.IsAny<Guid>())
+                )
+                .Callback<Guid>(passedInPostId =>
+                {
+                    fetchedPost = posts.Find(post => post.Id.Equals(passedInPostId));
+                })
+                .Returns(() => fetchedPost);
 
-            var acceptException = Record.Exception(() => postService.Accept(validPostId, userId));
+            postRepository
+                .Setup(property => property.Update(It.IsAny<Post>()))
+                .Callback<Post>(passedInPost =>
+                {
+                    int index = posts.FindIndex(post => post.Id.Equals(passedInPost.Id));
+                    posts[index].AcceptedUserId = userId;
+                    posts[index].AcceptedAt = DateTime.UtcNow;
+                });
+
+            var postService = new PostService(
+                postRepository.Object,
+                webHostEnvironment.Object
+            );
+
+            postService.CreateOrRecommend(
+                userId,
+                "Customer",
+                new PostCreateViewModel
+                {
+                    Description =
+                        "Lorem ipsum dolor sit amet, consectetur adipiscing elit, " +
+                        "sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+                    Image = null
+                }
+            );
+
+            var acceptException = Record.Exception(() => postService.Accept(postId, userId));
 
             Assert.Null(acceptException);
         }
@@ -377,10 +294,16 @@ namespace PostsApiTests
             Guid userId = Guid.NewGuid();
             string searchFilter = null;
 
-            var postService = new PostService(null, null);
-
             Assert.Throws<HttpResponseException>(() =>
-                postService.GetAll(userId, "some role", searchFilter, "requestHost", "requestPath", new PaginationQueryParams(), "paginationUrl")
+                postService.GetAll(
+                    userId,
+                    "Customer",
+                    searchFilter,
+                    "requestHost",
+                    "requestPath",
+                    new PaginationQueryParams(),
+                    "paginationUrl"
+               )
             );
         }
 
@@ -390,338 +313,159 @@ namespace PostsApiTests
             Guid userId = Guid.NewGuid();
             string searchFilter = "";
 
-            var postService = new PostService(null, null);
-
             Assert.Throws<HttpResponseException>(() =>
-                postService.GetAll(userId, "some role", searchFilter, "requestHost", "requestPath", new PaginationQueryParams(), "paginationUrl")
+                postService.GetAll(
+                    userId,
+                    "Customer",
+                    searchFilter,
+                    "requestHost",
+                    "requestPath",
+                    new PaginationQueryParams(),
+                    "paginationUrl"
+               )
             );
         }
         #endregion
+
+        public int CheckPaginationPostsListEqualValues(int length, List<PostViewModel> expectedPosts, List<PostViewModel> paginationPosts)
+        {
+            int equalAmount = 0;
+
+            if (expectedPosts.Count == length)
+            {
+                for (int i = 0; i < length; i++)
+                {
+                    for (int j = 0; j < length; j++)
+                    {
+                        if (expectedPosts[i].Id == paginationPosts[j].Id &&
+                           expectedPosts[i].Description == paginationPosts[j].Description &&
+                           expectedPosts[i].CanEdit == paginationPosts[j].CanEdit &&
+                           expectedPosts[i].CreatedAt == paginationPosts[j].CreatedAt
+                        )
+                        {
+                            equalAmount++;
+                        }
+                    }
+                }
+            }
+
+            return equalAmount;
+        }
 
         #region Success Tests
         [Fact]
         public void GetAll_WithSearchFilter_ReturnsPaginationResponsePostViewModel()
         {
+            List<Post> posts = new List<Post>();
+            Guid postId = Guid.Empty;
             Guid userId = Guid.NewGuid();
-            string searchFilter = "all";
+            Post fetchedPost = null;
+
+            var webHostEnvironment = new Mock<IWebHostEnvironment>();
+            webHostEnvironment.SetupProperty(property =>
+                property.ContentRootPath,
+                "C:\\Users\\arthu\\source\\repos\\PostsApi\\PostsApi"
+            );
 
             var postRepository = new Mock<IGenericRepository<Post>>();
+            postRepository
+                .Setup(property => property.Create(It.IsAny<Post>()))
+                .Callback<Post>(passedInPost =>
+                {
+                    passedInPost.Id = Guid.NewGuid();
+                    passedInPost.IsCreatedByAdmin = false;
+
+                    postId = passedInPost.Id;
+
+                    posts.Add(passedInPost);
+                });
+
+            postRepository
+                .Setup(property => property.GetAll())
+                .Returns(() => posts.AsQueryable<Post>());
+
+            postRepository
+                .Setup(property => property.Update(It.IsAny<Post>()))
+                .Callback<Post>(passedInPost =>
+                {
+                    int index = posts.FindIndex(post => post.Id.Equals(passedInPost.Id));
+                    posts[index].AcceptedUserId = userId;
+                    posts[index].AcceptedAt = DateTime.UtcNow;
+                });
+
+            postRepository
+                .Setup(property => property.GetById(It.IsAny<Guid>()))
+                .Callback<Guid>(passedInPostId =>
+                {
+                    fetchedPost = posts.Find(post => post.Id.Equals(passedInPostId));
+                })
+                .Returns(() => fetchedPost);
+
+            var postService = new PostService(
+                postRepository.Object,
+                webHostEnvironment.Object
+            );
+
+            // Insert some data
+            Guid[] insertedPostsIds = new Guid[4];
+
+            postService.CreateOrRecommend(userId, "Common", new PostCreateViewModel { Description = "Lorem", Image = null });
+            insertedPostsIds[0] = postId;
+            postService.CreateOrRecommend(userId, "Common", new PostCreateViewModel { Description = "Ipsum", Image = null });
+            insertedPostsIds[1] = postId;
+            postService.CreateOrRecommend(userId, "Common", new PostCreateViewModel { Description = "Dolor", Image = null });
+            insertedPostsIds[2] = postId;
+            postService.CreateOrRecommend(userId, "Common", new PostCreateViewModel { Description = "Sit", Image = null });
+            insertedPostsIds[3] = postId;
+
+            for(int i=0; i < insertedPostsIds.Length; i++)
+            {
+                postService.Accept(insertedPostsIds[i], userId);
+            }
+
+            string searchFilter = "all";
 
             PaginationResponse<PostViewModel> paginationResponse = null;
 
-            var postService = new PostService(postRepository.Object, null);
-            
             Exception getAllException = Record.Exception(() =>
-                paginationResponse =
-                    postService.GetAll(userId, "some role", searchFilter, "requestHost", "requestPath", new PaginationQueryParams(), "paginationUrl")
+                paginationResponse = postService.GetAll(
+                    userId,
+                    "Common",
+                    searchFilter,
+                    "requestHost",
+                    "requestPath",
+                    new PaginationQueryParams(),
+                    "paginationUrl"
+               )
             );
-            
+
+            var expectedPosts = new List<PostViewModel>();
+
+            for (int i=0; i < posts.Count; i++)
+            {
+                expectedPosts.Add
+                (
+                    new PostViewModel
+                    {
+                        Id = posts[i].Id,
+                        Description = posts[i].Description,
+                        CanEdit = true,
+                        CreatedAt = posts[i].CreatedAt
+                    }
+                );
+            }
+
+            int equalAmount = CheckPaginationPostsListEqualValues(
+                paginationResponse.TotalRecords,
+                expectedPosts,
+                paginationResponse.Data.ToList()
+            );
+
             Assert.Null(getAllException);
-            Assert.NotNull(paginationResponse);
-        }
-        #endregion
-        #endregion
-
-        #region GetById Method Tests
-        #region Exceptions Tests
-        [Fact]
-        public void GetById_WithNonExistingPostIdWithSameUserIdAndPostCreatorId_ReturnsHttpResponseException()
-        {
-            Guid invalidPostId = Guid.NewGuid();
-            Guid passedInPostId = Guid.Empty;
-
-            var userId = Guid.NewGuid();
-
-            var postRepository = new Mock<IGenericRepository<Post>>();
-            postRepository
-                .Setup(setup => setup.GetById(It.IsAny<Guid>()))
-                .Callback<Guid>(passedInPostIdToGetById => passedInPostId = passedInPostIdToGetById)
-                .Returns(() => {
-                    return passedInPostId == invalidPostId
-                        ? null
-                        : new Post { CreatorId = userId };
-                });
-
-            var postService = new PostService(postRepository.Object, null);
-
-            Assert.Throws<HttpResponseException>(() =>
-                postService.GetById(invalidPostId, userId, "some role", "requestHost", "requestPath")
-            );
-        }
-        
-        [Fact]
-        public void GetById_WithExistingPostIdWithUserIdDifferentFromPostCreatorId_ReturnsHttpResponseException()
-        {
-            Guid userId = Guid.NewGuid();
-
-            var postRepository = new Mock<IGenericRepository<Post>>();
-            postRepository
-                .Setup(setup => setup.GetById(It.IsAny<Guid>()))
-                .Returns(() => new Post { CreatorId = Guid.NewGuid() });
-
-            var postService = new PostService(postRepository.Object, null);
-
-            Assert.Throws<HttpResponseException>(() =>
-                postService.GetById(Guid.NewGuid(), userId, "some role", "requestHost", "requestPath")
-            );
-        }
-        #endregion
-
-        #region Success Tests
-        [Fact]
-        public void GetById_WithExistingPostIdAndSameUserIdAndPostCreatorId_ReturnsNothing()
-        {
-            Guid userId = Guid.NewGuid();
-
-            var postRepository = new Mock<IGenericRepository<Post>>();
-            postRepository
-                .Setup(setup => setup.GetById(It.IsAny<Guid>()))
-                .Returns(() => new Post { CreatorId = userId });
-
-            var postService = new PostService(postRepository.Object, null);
-
-            var getByIdException = Record.Exception(() =>
-                postService.GetById(Guid.NewGuid(), userId, "some role", "requestHost", "requestPath")
-            );
-
-            Assert.Null(getByIdException);
-        }
-        #endregion
-        #endregion
-
-        #region Edit Method Tests
-        #region Exceptions Tests
-        [Fact]
-        public void Edit_WithNonExistingPostId_ReturnsHttpResponseException()
-        {
-            var postRepository = new Mock<IGenericRepository<Post>>();
-            postRepository
-                .Setup(setup => setup.GetById(It.IsAny<Guid>()))
-                .Returns(() => null);
-
-            var postService = new PostService(postRepository.Object, null);
-
-            Assert.Throws<HttpResponseException>(() =>
-                postService.Edit(Guid.NewGuid(), Guid.NewGuid(), "some role", new PostViewModel())
-            );
-        }
-
-        [Fact]
-        public void Edit_WithExistingPostIdAndUserIdDifferentFromPostCreatorId_ReturnsHttpResponseException()
-        {
-            var postRepository = new Mock<IGenericRepository<Post>>();
-            postRepository
-                .Setup(setup => setup.GetById(It.IsAny<Guid>()))
-                .Returns(() => new Post { CreatorId = Guid.NewGuid() });
-
-            var postService = new PostService(postRepository.Object, null);
-
-            Assert.Throws<HttpResponseException>(() =>
-                postService.Edit(Guid.NewGuid(), Guid.NewGuid(), "some role", new PostViewModel { Description = "some description" })
-            );
-        }
-
-        [Fact]
-        public void Edit_WithExistingPostIdAndSameUserIdPostCreatorIdWithBothPostViewModelDescriptionAndImageNull_ReturnsHttpResponseException()
-        {
-            Guid userId = Guid.NewGuid();
-
-            var postRepository = new Mock<IGenericRepository<Post>>();
-            postRepository
-                .Setup(setup => setup.GetById(It.IsAny<Guid>()))
-                .Returns(() => new Post { CreatorId = userId });
-
-            var postService = new PostService(postRepository.Object, null);
-
-            Assert.Throws<HttpResponseException>(() =>
-                postService.Edit(Guid.NewGuid(), userId, "some role", new PostViewModel())
-            );
-        }
-
-        [Fact]
-        public void Edit_WithExistingPostIdAndSameUserIdPostCreatorIdWithPostViewModelEmptyDescriptionAndImageNull_ReturnsHttpResponseException()
-        {
-            Guid userId = Guid.NewGuid();
-
-            var postRepository = new Mock<IGenericRepository<Post>>();
-            postRepository
-                .Setup(setup => setup.GetById(It.IsAny<Guid>()))
-                .Returns(() => new Post { CreatorId = userId });
-
-            var postService = new PostService(postRepository.Object, null);
-
-            Assert.Throws<HttpResponseException>(() =>
-                postService.Edit(Guid.NewGuid(), userId, "some role", new PostViewModel { Description = "" })
-            );
-        }
-        #endregion
-
-        #region Success Tests
-        [Fact]
-        public void Edit_WithDescriptionAndImage_ReturnsNothing()
-        {
-            Guid validPostId = Guid.NewGuid();
-            Guid validUserId = Guid.NewGuid();
-
-            var postService = new Mock<IPostService>();
-            postService
-                .Setup(setup =>
-                    setup.Edit(
-                        It.Is<Guid>(postIdToPass => postIdToPass == validPostId),
-                        It.Is<Guid>(userIdToPass => userIdToPass == validUserId),
-                        It.IsAny<string>(),
-                        It.Is<PostViewModel>(postViewModelToPass =>
-                            !string.IsNullOrEmpty(postViewModelToPass.Description) &&
-                            (postViewModelToPass.Image != null && postViewModelToPass.Image.Length > 0)
-                        )
-                    )
-                )
-                .Verifiable("PostService Edit must be called passing: valid post id, valid user id, not null or empty description " +
-                    "for PostViewModel and not null image with its length greater than 0 for PostViewModel");
-
-            postService.Object.Edit(
-                validPostId,
-                validUserId,
-                "some role",
-                new PostViewModel
-                {
-                    Description = "some description",
-                    Image = new FormFile(new MemoryStream(Encoding.UTF8.GetBytes("lorem ipsum")), 0, 100, "Data", "image.png")
-                }
-            );
-
-            postService.VerifyAll();
-        }
-
-        [Fact]
-        public void Edit_WithDescriptionAndNullImage_ReturnsNothing()
-        {
-            Guid validPostId = Guid.NewGuid();
-            Guid validUserId = Guid.NewGuid();
-
-            var postService = new Mock<IPostService>();
-            postService
-                .Setup(setup =>
-                    setup.Edit(
-                        validPostId,
-                        validUserId,
-                        It.IsAny<string>(),
-                        It.Is<PostViewModel>(postViewModelToPass =>
-                            !string.IsNullOrEmpty(postViewModelToPass.Description) &&
-                            postViewModelToPass.Image == null
-                        )
-                    )
-                );
-
-            postService.Object.Edit(
-                validPostId,
-                validUserId,
-                "some role",
-                new PostViewModel { Description = "some description", Image = null }
-            );
-
-            postService.VerifyAll();
-        }
-
-        [Fact]
-        public void Edit_WithDescriptionAndImageWithNoLength_ReturnsNothing()
-        {
-            Guid validPostId = Guid.NewGuid();
-            Guid validUserId = Guid.NewGuid();
-
-            var postService = new Mock<IPostService>();
-            postService
-                .Setup(setup =>
-                    setup.Edit(
-                        validPostId,
-                        validUserId,
-                        It.IsAny<string>(),
-                        It.Is<PostViewModel>(postViewModelSetup =>
-                            !string.IsNullOrEmpty(postViewModelSetup.Description) &&
-                            (postViewModelSetup.Image != null && postViewModelSetup.Image.Length == 0)
-                        )
-                    )
-                );
-
-            postService.Object.Edit(
-                validPostId,
-                validUserId,
-                "some role",
-                new PostViewModel { 
-                    Description = "some description", 
-                    Image = new FormFile(new MemoryStream(Encoding.UTF8.GetBytes("lorem ipsum")), 0, 0, "Data", "image.png")
-                }
-            );
-
-            postService.VerifyAll();
-        }
-
-        [Fact]
-        public void Edit_WithNullDescriptionWithImage_ReturnsNothing()
-        {
-            Guid validPostId = Guid.NewGuid();
-            Guid validUserId = Guid.NewGuid();
-
-            var postService = new Mock<IPostService>();
-            postService
-                .Setup(setup =>
-                    setup.Edit(
-                        validPostId,
-                        validUserId,
-                        It.IsAny<string>(),
-                        It.Is<PostViewModel>(postViewModelSetup =>
-                            postViewModelSetup.Description == null &&
-                            (postViewModelSetup.Image != null && postViewModelSetup.Image.Length > 0)
-                        )
-                    )
-                );
-
-            postService.Object.Edit(
-                validPostId,
-                validUserId,
-                "some role",
-                new PostViewModel
-                {
-                    Description = null,
-                    Image = new FormFile(new MemoryStream(Encoding.UTF8.GetBytes("lorem ipsum")), 0, 100, "Data", "image.png")
-                }
-            );
-
-            postService.VerifyAll();
-        }
-
-        [Fact]
-        public void Edit_WithEmptyDescriptionWithImage_ReturnsNothing()
-        {
-            Guid validPostId = Guid.NewGuid();
-            Guid validUserId = Guid.NewGuid();
-
-            var postService = new Mock<IPostService>();
-            postService
-                .Setup(setup =>
-                    setup.Edit(
-                        validPostId,
-                        validUserId,
-                        It.IsAny<string>(),
-                        It.Is<PostViewModel>(postViewModelSetup =>
-                            postViewModelSetup.Description == "" &&
-                            (postViewModelSetup.Image != null && postViewModelSetup.Image.Length > 0)
-                        )
-                    )
-                );
-
-            postService.Object.Edit(
-                validPostId,
-                validUserId,
-                "some role",
-                new PostViewModel
-                {
-                    Description = "",
-                    Image = new FormFile(new MemoryStream(Encoding.UTF8.GetBytes("lorem ipsum")), 0, 100, "Data", "image.png")
-                }
-            );
-
-            postService.VerifyAll();
+            Assert.Equal(4, paginationResponse.TotalRecords);
+            Assert.Null(paginationResponse.NextPage);
+            Assert.Null(paginationResponse.PreviousPage);
+            Assert.Equal(4, equalAmount);
         }
         #endregion
         #endregion
